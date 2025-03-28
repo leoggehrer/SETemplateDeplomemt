@@ -11,6 +11,7 @@ global using IdType = System.Int32;
 #endif
 global using Common = SETemplate.Common;
 global using CommonContracts = SETemplate.Common.Contracts;
+global using CommonModules = SETemplate.Common.Modules;
 global using SETemplate.Common.Extensions;
 global using System.ComponentModel.DataAnnotations;
 global using System.ComponentModel.DataAnnotations.Schema;

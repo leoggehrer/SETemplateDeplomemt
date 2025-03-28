@@ -28,7 +28,19 @@ namespace SETemplate.Logic.DataContext
             var appSettings = Common.Modules.Configuration.AppSettings.Instance;
 
             ClassConstructing();
-            DatabaseType = appSettings["Database:Type"] ?? DatabaseType;
+
+#if POSTGRES_ON
+            DatabaseType = "Postgres";
+#endif
+
+#if SQLSERVER_ON
+            DatabaseType = "SqlServer";
+#endif
+
+#if SQLITE_ON
+            DatabaseType = "Sqlite";
+#endif
+
             ConnectionString = appSettings[$"ConnectionStrings:{DatabaseType}ConnectionString"] ?? ConnectionString;
             ClassConstructed();
         }
@@ -101,18 +113,17 @@ namespace SETemplate.Logic.DataContext
         /// <param name="optionsBuilder">The options builder to be used for configuration.</param>
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (DatabaseType == "Sqlite")
-            {
-                optionsBuilder.UseSqlite(ConnectionString);
-            }
-            else if (DatabaseType == "SqlServer")
-            {
-                optionsBuilder.UseSqlServer(ConnectionString);
-            }
-            else if (DatabaseType == "Postgres")
-            {
-                optionsBuilder.UseNpgsql(ConnectionString);
-            }
+#if POSTGRES_ON
+            optionsBuilder.UseNpgsql(ConnectionString);
+#endif
+
+#if SQLSERVER_ON
+            optionsBuilder.UseSqlServer(ConnectionString);
+#endif
+
+#if SQLITE_ON
+            optionsBuilder.UseSqlite(ConnectionString);
+#endif
 
             base.OnConfiguring(optionsBuilder);
         }
@@ -134,7 +145,7 @@ namespace SETemplate.Logic.DataContext
             }
             return result ?? Set<E>();
         }
-        #endregion methods
+#endregion methods
 
         #region partial methods
         /// <summary>

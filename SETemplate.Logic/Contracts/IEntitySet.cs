@@ -16,6 +16,18 @@ namespace SETemplate.Logic.Contracts
         TEntity Create();
 
         /// <summary>
+        /// Gets the count of entities in the set.
+        /// </summary>
+        /// <returns>The count of entities in the set.</returns>
+        int Count();
+
+        /// <summary>
+        /// Asynchronously gets the count of entities in the set.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the count of entities in the set.</returns>
+        Task<int> CountAsync();
+
+        /// <summary>
         /// Returns an <see cref="IQueryable{TEntity}"/> that can be used to query the set of entities.
         /// </summary>
         /// <returns>An <see cref="IQueryable{TEntity}"/> that can be used to query the set of entities.</returns>
