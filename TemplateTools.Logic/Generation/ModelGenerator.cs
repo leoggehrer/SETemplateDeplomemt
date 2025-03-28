@@ -3,6 +3,7 @@
 namespace TemplateTools.Logic.Generation
 {
     using System.Reflection;
+    using System.Runtime.CompilerServices;
     using TemplateTools.Logic.Common;
     using TemplateTools.Logic.Contracts;
     using TemplateTools.Logic.Extensions;
@@ -57,7 +58,9 @@ namespace TemplateTools.Logic.Generation
             if (StaticLiterals.VersionProperties.Any(vp => vp.Equals(propertyInfo.Name)) == false
                 && copyType.Equals(propertyInfo.DeclaringType!.FullName, StringComparison.CurrentCultureIgnoreCase) == false)
             {
-                if (ItemProperties.IsArrayType(propertyInfo.PropertyType))
+                if (ItemProperties.IsArrayType(propertyInfo.PropertyType)
+                    && propertyInfo.PropertyType.GetElementType() != typeof(string)
+                    && propertyInfo.PropertyType.GetElementType()!.IsPrimitive == false)
                 {
                     var modelType = ItemProperties.GetSubType(propertyInfo.PropertyType.GetElementType()!);
 
@@ -216,12 +219,10 @@ namespace TemplateTools.Logic.Generation
             var inherit = baseType != null ? (baseType.Name.Equals(StaticLiterals.EntityObjectName) ? $" : {StaticLiterals.GlobalUsingIdentifiableName}" : $" : {ItemProperties.CreateContractName(baseType)}") : string.Empty;
             var itemName = ItemProperties.CreateContractName(type);
             var fileName = $"{itemName}{StaticLiterals.CSharpFileExtension}";
-            var visibility = EntityProject.IsSystemEntity(type) ? "internal" : "public";
-            var itemFullName = EntityProject.IsSystemEntity(type) ? ItemProperties.CreateFullLogicContractType(type)
-                                                                  : ItemProperties.CreateFullCommonContractType(type);
-            var itemNamespace = EntityProject.IsSystemEntity(type) ? ItemProperties.CreateFullLogicNamespace(type, StaticLiterals.ContractsFolder)
-                                                                   : ItemProperties.CreateFullCommonNamespace(type, StaticLiterals.ContractsFolder);
-            var typeProperties = type.GetAllPropertyInfos() ?? [];
+            var visibility = ItemProperties.GetDefaultVisibility(type);
+            var itemFullName = ItemProperties.CreateFullContractType(type);
+            var itemNamespace = ItemProperties.CreateFullNamespace(type, StaticLiterals.ContractsFolder);
+            var typeProperties = type.GetAllPropertyInfos().Where(pi => pi.DeclaringType == type) ?? [];
             var generateProperties = typeProperties.Where(pi => StaticLiterals.NoGenerationProperties.Any(p => p.Equals(pi.Name)) == false
                                                              && ItemProperties.IsEntityType(pi.PropertyType) == false
                                                              && ItemProperties.IsEntityListType(pi.PropertyType) == false
@@ -238,32 +239,80 @@ namespace TemplateTools.Logic.Generation
             result.AddRange(CreateComment(type));
             result.Add($"{visibility} partial interface {itemName}{inherit}");
             result.Add("{");
-            foreach (var propertyItem in generateProperties)
+            foreach (var propertyInfo in generateProperties)
             {
-                if (QuerySetting<bool>(unitType, ItemType.InterfaceProperty, propertyItem.DeclaringName(), StaticLiterals.Generate, "True"))
+                if (QuerySetting<bool>(unitType, ItemType.InterfaceProperty, propertyInfo.DeclaringName(), StaticLiterals.Generate, "True"))
                 {
                     var getAccessor = string.Empty;
                     var setAccessor = string.Empty;
-                    var propertyType = GetPropertyType(propertyItem);
+                    var propertyType = GetPropertyType(propertyInfo);
 
-                    if (QuerySetting<bool>(unitType, ItemType.InterfaceProperty, propertyItem.DeclaringName(), StaticLiterals.GetAccessor, "True"))
+                    if (propertyInfo.CanRead 
+                        && QuerySetting<bool>(unitType, ItemType.InterfaceProperty, propertyInfo.DeclaringName(), StaticLiterals.GetAccessor, "True"))
                     {
                         getAccessor = "get;";
                     }
-                    if (QuerySetting<bool>(unitType, ItemType.InterfaceProperty, propertyItem.DeclaringName(), StaticLiterals.SetAccessor, "True"))
+                    if (propertyInfo.CanWrite 
+                        && QuerySetting<bool>(unitType, ItemType.InterfaceProperty, propertyInfo.DeclaringName(), StaticLiterals.SetAccessor, "True"))
                     {
                         setAccessor = "set;";
                     }
-                    result.Add($"{propertyType} {propertyItem.Name}" + " { " + $"{getAccessor} {setAccessor}" + " } ");
+                    result.Add($"{propertyType} {propertyInfo.Name}" + " { " + $"{getAccessor} {setAccessor}" + " } ");
                 }
             }
             // Added copy properties method
-            result.AddRange(CreateCopyProperties(string.Empty, type, itemName, pi => generateProperties.Contains(pi)));
+            result.AddRange(CreateContractCopyProperties(type, itemName, pi => generateProperties.Contains(pi)));
 
             result.Add("}");
             result.EnvelopeWithANamespace(itemNamespace);
             result.FormatCSharpCode();
             return result;
+        }
+        /// <summary>
+        /// Creates a copy of the properties of the specified <paramref name="type"/>.
+        /// </summary>
+        /// <param name="visibility">The visibility of the copy properties method.</param>
+        /// <param name="type">The type whose properties will be copied.</param>
+        /// <param name="copyType">The type to which the properties will be copied.</param>
+        /// <param name="filter">An optional filter function to determine which properties to copy.</param>
+        /// <returns>
+        /// An enumerable collection of strings representing the generated copy properties method.
+        /// </returns>
+        public virtual IEnumerable<string> CreateContractCopyProperties(Type type, string copyType, Func<PropertyInfo, bool>? filter = null)
+        {
+            var result = new List<string>();
+
+            result.AddRange(CreateComment("Copies the properties of another object to this instance."));
+            result.Add("/// <param name=\"other\">The object to copy the properties from.</param>");
+            result.Add($"void CopyProperties({copyType} other)");
+            result.Add("{");
+            result.Add("other.CheckArgument(nameof(other));");
+            result.Add("bool handled = false;");
+            result.Add("BeforeCopyProperties(other, ref handled);");
+            result.Add("if (handled == false)");
+            result.Add("{");
+
+            foreach (var item in type.GetAllPropertyInfos().Where(filter ?? (p => true)))
+            {
+                if (item.CanWrite && item.CanRead && CanCreate(item) && CanCopyProperty(item))
+                {
+                    result.Add(CopyProperty(copyType, item));
+                }
+            }
+
+            result.Add("}");
+            result.Add("AfterCopyProperties(other);");
+            result.Add("}");
+
+            result.AddRange(CreateComment("This method is called before copying the properties of another object to the current instance."));
+            result.Add("/// <param name=\"other\">The object to copy the properties from.</param>");
+            result.Add("/// <param name=\"handled\">A boolean value that indicates whether the method has been handled.</param>");
+            result.Add($"partial void BeforeCopyProperties({copyType} other, ref bool handled);");
+
+            result.AddRange(CreateComment("This method is called after copying properties from another instance of the class."));
+            result.Add("/// <param name=\"other\">The other instance of the class from which properties were copied.</param>");
+            result.Add($"partial void AfterCopyProperties({copyType} other);");
+            return result.Where(l => string.IsNullOrEmpty(l) == false);
         }
 
         /// <summary>

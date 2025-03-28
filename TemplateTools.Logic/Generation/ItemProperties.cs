@@ -283,6 +283,28 @@ namespace TemplateTools.Logic.Generation
         #endregion type items
 
         #region logic items
+        /// <summary>
+        /// Creates the full contract type for the given type.
+        /// </summary>
+        /// <param name="type">The type for which the full contract type needs to be created.</param>
+        /// <returns>The full contract type as a string.</returns>
+        public string CreateFullContractType(Type type)
+        {
+            return EntityProject.IsSystemEntity(type) ? CreateFullLogicContractType(type)
+                                                      : CreateFullCommonContractType(type);
+        }
+        /// <summary>
+        /// Creates the full namespace for the specified type.
+        /// </summary>
+        /// <param name="type">The type for which the namespace is created.</param>
+        /// <param name="preItems">Optional array of pre-defined namespace items.</param>
+        /// <returns>The full namespace.</returns>
+        public string CreateFullNamespace(Type type, params string[] preItems)
+        {
+            return EntityProject.IsSystemEntity(type) ? CreateFullLogicNamespace(type, preItems)
+                                                      : CreateFullCommonNamespace(type, preItems);
+        }
+
         ///<summary>
         /// Creates the full common contract type for the given type.
         ///</summary>
@@ -440,7 +462,7 @@ namespace TemplateTools.Logic.Generation
         }
         #endregion subType items
 
-        #region contract properties
+        #region path
         /// <summary>
         /// Creates a sub file path.
         /// </summary>
@@ -454,7 +476,18 @@ namespace TemplateTools.Logic.Generation
 
             return $"{string.Join(Path.DirectorySeparatorChar, namespaceItems!.Union([fileName]))}";
         }
-        #endregion contract properties
+        /// <summary>
+        /// Gets the default visibility for the specified type.
+        /// </summary>
+        /// <param name="type">The type for which to get the default visibility.</param>
+        /// <returns>
+        /// A string representing the default visibility of the type.
+        /// Returns "internal" if the type is a system entity; otherwise, returns "public".
+        /// </returns>
+        public static string GetDefaultVisibility(Type type)
+        {
+            return EntityProject.IsSystemEntity(type) ? "internal" : "public";
+        }
 
         /// <summary>
         /// Diese Methode ermittelt den Teilnamensraum von einem Typ.
@@ -554,6 +587,7 @@ namespace TemplateTools.Logic.Generation
             }
             return preItems.Union(result);
         }
+        #endregion paths
 
         #region type infos
         /// <summary>

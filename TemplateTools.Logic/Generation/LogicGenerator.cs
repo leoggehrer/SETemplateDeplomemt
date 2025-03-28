@@ -105,7 +105,7 @@ namespace TemplateTools.Logic.Generation
             result.Add("{");
 
             result.Add("#region properties");
-            foreach (var type in entityProject.EntityTypes)
+            foreach (var type in entityProject.AllEntityTypes)
             {
                 var defaultValue = (GenerateDbContext && GetGenerateDefault(type)).ToString();
 
@@ -216,7 +216,7 @@ namespace TemplateTools.Logic.Generation
             var subPath = ItemProperties.CreateSubPathFromType(type);
             var fileName = $"{itemName}{StaticLiterals.GenerationPostFix}{StaticLiterals.CSharpFileExtension}";
             var entityNamespace = $"{ItemProperties.ProjectNamespace}.{subNamespace}";
-            var contractType = ItemProperties.CreateFullCommonContractType(type);
+            var contractType = ItemProperties.CreateFullContractType(type);
             var result = new GeneratedItem(unitType, itemType)
             {
                 FullName = $"{entityNamespace}.{itemName}",
@@ -266,7 +266,7 @@ namespace TemplateTools.Logic.Generation
             var fileName = $"{itemName}{StaticLiterals.CSharpFileExtension}";
             var entitySetGenericType = QuerySetting<string>(itemType, StaticLiterals.AllItems, StaticLiterals.EntitySetGenericType, StaticLiterals.EntitySetName);
             var entityType = ItemProperties.GetModuleSubType(type);
-            var contractType = ItemProperties.CreateFullCommonContractType(type);
+            var contractType = ItemProperties.CreateFullContractType(type);
             var contractSubNamespace = ItemProperties.CreateSubNamespaceFromEntity(type, StaticLiterals.ContractsFolder);
             var dataContextSubNamespace = ItemProperties.CreateSubNamespaceFromEntity(type, StaticLiterals.DataContextFolder);
             var dataContextNamespace = $"{ItemProperties.ProjectNamespace}.{dataContextSubNamespace}";
@@ -287,7 +287,7 @@ namespace TemplateTools.Logic.Generation
             result.AddRange(CreatePartialStaticConstrutor(itemName));
             result.AddRange(CreatePartialConstrutor("public", itemName, $"DbContext context, DbSet<TEntity> dbSet", "base(context, dbSet)", null, true));
 
-            result.AddRange(CreateContractCopyProperties("protected override", "TEntity", "TContract", "target", "source"));
+            result.AddRange(CreateCopyProperties("protected override", "TEntity", "TContract", "target", "source"));
             result.Add("}");
             result.EnvelopeWithANamespace(dataContextNamespace);
             result.FormatCSharpCode();
@@ -319,6 +319,7 @@ namespace TemplateTools.Logic.Generation
         {
             var itemName = ItemProperties.CreateContractSetName(type);
             var fileName = $"{itemName}{StaticLiterals.CSharpFileExtension}";
+            var visibility = ItemProperties.GetDefaultVisibility(type);
             var entitySubType = $"{StaticLiterals.EntitiesFolder}.{ItemProperties.CreateSubTypeFromEntity(type)}";
             var subNamespace = ItemProperties.CreateSubNamespaceFromEntity(type, StaticLiterals.ContractsFolder);
             var contractNamespace = $"{ItemProperties.ProjectNamespace}.{subNamespace}";
@@ -330,7 +331,7 @@ namespace TemplateTools.Logic.Generation
                 SubFilePath = ItemProperties.CreateSubFilePath(type, fileName, StaticLiterals.ContractsFolder),
             };
             result.AddRange(CreateComment(type));
-            result.Add($"public partial interface {itemName} : {contractSetGenericType}<{entitySubType}>");
+            result.Add($"{visibility} partial interface {itemName} : {contractSetGenericType}<{entitySubType}>");
             result.Add("{");
             result.Add("}");
             result.EnvelopeWithANamespace(contractNamespace);

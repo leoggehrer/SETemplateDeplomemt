@@ -747,6 +747,7 @@ namespace TemplateTools.Logic.Generation
             result.Add($"partial void AfterCopyProperties({copyType} other);");
             return result.Where(l => string.IsNullOrEmpty(l) == false);
         }
+
         /// <summary>
         /// Creates the source code for copy properties of the specified types.
         /// </summary>
@@ -758,7 +759,7 @@ namespace TemplateTools.Logic.Generation
         /// <returns>
         /// An enumerable collection of strings representing the generated copy properties method.
         /// </returns>
-        public virtual IEnumerable<string> CreateContractCopyProperties(string modifiers, string entityType, string contractType, string targetName, string sourceName)
+        protected virtual IEnumerable<string> CreateCopyProperties(string modifiers, string entityType, string contractType, string targetName, string sourceName)
         {
             var result = new List<string>();
 
