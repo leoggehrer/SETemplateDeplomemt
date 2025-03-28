@@ -1,5 +1,5 @@
 //@BaseCode
-//MdStart
+
 namespace TemplateTools.Logic
 {
     using System.Text;
@@ -428,4 +428,4 @@ namespace TemplateTools.Logic
         #endregion write methods
     }
 }
-//MdEnd
+

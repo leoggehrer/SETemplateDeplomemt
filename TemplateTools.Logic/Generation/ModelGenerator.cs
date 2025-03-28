@@ -1,5 +1,5 @@
 //@BaseCode
-//MdStart
+
 namespace TemplateTools.Logic.Generation
 {
     using System.Reflection;
@@ -22,7 +22,6 @@ namespace TemplateTools.Logic.Generation
         /// Gets the properties of the item.
         /// </summary>
         protected abstract ItemProperties ItemProperties { get; }
-
         #region overrides
         /// <summary>
         /// Returns the type of the property.
@@ -205,6 +204,69 @@ namespace TemplateTools.Logic.Generation
         #endregion converters
 
         /// <summary>
+        /// Creates an entity contract for the specified type.
+        /// </summary>
+        /// <param name="type">The type for which the entity contract is created.</param>
+        /// <param name="unitType">The unit type.</param>
+        /// <param name="itemType">The item type.</param>
+        /// <returns>A <see cref="GeneratedItem"/> representing the created entity contract.</returns>
+        protected virtual GeneratedItem CreateEntityContract(Type type, UnitType unitType, ItemType itemType)
+        {
+            var baseType = type.BaseType;
+            var inherit = baseType != null ? (baseType.Name.Equals(StaticLiterals.EntityObjectName) ? $" : {StaticLiterals.GlobalUsingIdentifiableName}" : $" : {ItemProperties.CreateContractName(baseType)}") : string.Empty;
+            var itemName = ItemProperties.CreateContractName(type);
+            var fileName = $"{itemName}{StaticLiterals.CSharpFileExtension}";
+            var visibility = EntityProject.IsSystemEntity(type) ? "internal" : "public";
+            var itemFullName = EntityProject.IsSystemEntity(type) ? ItemProperties.CreateFullLogicContractType(type)
+                                                                  : ItemProperties.CreateFullCommonContractType(type);
+            var itemNamespace = EntityProject.IsSystemEntity(type) ? ItemProperties.CreateFullLogicNamespace(type, StaticLiterals.ContractsFolder)
+                                                                   : ItemProperties.CreateFullCommonNamespace(type, StaticLiterals.ContractsFolder);
+            var typeProperties = type.GetAllPropertyInfos() ?? [];
+            var generateProperties = typeProperties.Where(pi => StaticLiterals.NoGenerationProperties.Any(p => p.Equals(pi.Name)) == false
+                                                             && ItemProperties.IsEntityType(pi.PropertyType) == false
+                                                             && ItemProperties.IsEntityListType(pi.PropertyType) == false
+                                                             && ItemProperties.IsEntityArrayType(pi.PropertyType) == false) ?? [];
+            var result = new GeneratedItem(unitType, itemType)
+            {
+                FullName = itemFullName,
+                FileExtension = StaticLiterals.CSharpFileExtension,
+                SubFilePath = ItemProperties.CreateSubFilePath(type, fileName, StaticLiterals.ContractsFolder),
+            };
+
+            visibility = QuerySetting<string>(unitType, itemType, type, StaticLiterals.Visibility, visibility);
+
+            result.AddRange(CreateComment(type));
+            result.Add($"{visibility} partial interface {itemName}{inherit}");
+            result.Add("{");
+            foreach (var propertyItem in generateProperties)
+            {
+                if (QuerySetting<bool>(unitType, ItemType.InterfaceProperty, propertyItem.DeclaringName(), StaticLiterals.Generate, "True"))
+                {
+                    var getAccessor = string.Empty;
+                    var setAccessor = string.Empty;
+                    var propertyType = GetPropertyType(propertyItem);
+
+                    if (QuerySetting<bool>(unitType, ItemType.InterfaceProperty, propertyItem.DeclaringName(), StaticLiterals.GetAccessor, "True"))
+                    {
+                        getAccessor = "get;";
+                    }
+                    if (QuerySetting<bool>(unitType, ItemType.InterfaceProperty, propertyItem.DeclaringName(), StaticLiterals.SetAccessor, "True"))
+                    {
+                        setAccessor = "set;";
+                    }
+                    result.Add($"{propertyType} {propertyItem.Name}" + " { " + $"{getAccessor} {setAccessor}" + " } ");
+                }
+            }
+            // Added copy properties method
+            result.AddRange(CreateCopyProperties(string.Empty, type, itemName, pi => generateProperties.Contains(pi)));
+
+            result.Add("}");
+            result.EnvelopeWithANamespace(itemNamespace);
+            result.FormatCSharpCode();
+            return result;
+        }
+
+        /// <summary>
         /// Creates a model from a given type, unit type, and item type.
         /// </summary>
         /// <param name="type">The type of the model.</param>
@@ -220,7 +282,7 @@ namespace TemplateTools.Logic.Generation
             var modelSubFilePath = ConvertModelSubPath(ItemProperties.CreateModelSubPath(type, string.Empty, StaticLiterals.CSharpFileExtension));
             var visibility = QuerySetting<string>(unitType, itemType, type, StaticLiterals.Visibility, "public");
             var attributes = QuerySetting<string>(unitType, itemType, type, StaticLiterals.Attribute, string.Empty);
-            var contractType = ItemProperties.CreateFullCommonModelContractType(type);
+            var contractType = ItemProperties.CreateFullCommonContractType(type);
             var typeProperties = type.GetAllPropertyInfos();
             var generateProperties = typeProperties.Where(e => StaticLiterals.NoGenerationProperties.Any(p => p.Equals(e.Name)) == false) ?? [];
             GeneratedItem result = new(unitType, itemType)
@@ -334,4 +396,4 @@ namespace TemplateTools.Logic.Generation
         #endregion Partial methods
     }
 }
-//MdEnd
+

@@ -1,5 +1,5 @@
 ﻿//@BaseCode
-//MdStart
+
 using System.Text;
 
 namespace TemplateTools.ConApp.Modules
@@ -239,4 +239,3 @@ namespace TemplateTools.ConApp.Modules
         }
     }
 }
-//MdEnd

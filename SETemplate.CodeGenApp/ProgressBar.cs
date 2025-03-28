@@ -1,5 +1,5 @@
 //@BaseCode
-//MdStart
+
 namespace SETemplate.CodeGenApp
 {
     using System;
@@ -104,4 +104,3 @@ namespace SETemplate.CodeGenApp
         }
     }
 }
-//MdEnd

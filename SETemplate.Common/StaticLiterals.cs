@@ -1,5 +1,5 @@
 //@BaseCode
-//MdStart
+
 namespace SETemplate.Common
 {
     /// <summary>
@@ -211,4 +211,4 @@ namespace SETemplate.Common
         #endregion Folders and Files
     }
 }
-//MdEnd
+

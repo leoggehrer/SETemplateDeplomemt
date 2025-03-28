@@ -1,5 +1,5 @@
 //@BaseCode
-//MdStart
+
 namespace TemplateTools.Logic.Generation
 {
     using System.Text;
@@ -148,4 +148,4 @@ namespace TemplateTools.Logic.Generation
         }
     }
 }
-//MdEnd
+

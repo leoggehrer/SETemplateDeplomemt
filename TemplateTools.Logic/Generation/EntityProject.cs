@@ -1,5 +1,5 @@
 //@BaseCode
-//MdStart
+
 namespace TemplateTools.Logic.Generation
 {
     using System.Reflection;
@@ -200,14 +200,23 @@ namespace TemplateTools.Logic.Generation
             return type.FullName!.EndsWith($".{StaticLiterals.Revision}.History");
         }
         ///<summary>
-        ///Checks if the given type is not a Generation entity.
+        ///Checks if the given type is a system entity.
         ///</summary>
         ///<param name="type">The type to check.</param>
-        ///<returns>True if the type is not a Generation entity, false otherwise.</returns>
-        public static bool IsNotAGenerationEntity(Type type)
+        ///<returns>True if the type is a system entity, false otherwise.</returns>
+        public static bool IsSystemEntity(Type type)
         {
             return IsAccountEntity(type) || IsAccessEntity(type) || IsLoggingEntity(type) || IsRevisionEntity(type);
         }
+        ///<summary>
+        ///Checks if the given type is a custom entity.
+        ///</summary>
+        ///<param name="type">The type to check.</param>
+        ///<returns>True if the type is a custom entity, false otherwise.</returns>
+        public static bool IsCustomEntity(Type type)
+        {
+            return IsSystemEntity(type) == false;
+        }
     }
 }
-//MdEnd
+

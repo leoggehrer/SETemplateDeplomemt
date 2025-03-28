@@ -1,5 +1,5 @@
 //@BaseCode
-//MdStart
+
 namespace TemplateTools.Logic.Contracts
 {
     /// <summary>
@@ -153,4 +153,4 @@ namespace TemplateTools.Logic.Contracts
         #endregion methods
     }
 }
-//MdEnd
+

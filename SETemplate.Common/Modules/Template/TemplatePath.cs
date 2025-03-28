@@ -1,5 +1,5 @@
 ﻿//@BaseCode
-//MdStart
+
 using System.Reflection;
 
 namespace SETemplate.Common.Modules.Template
@@ -62,7 +62,7 @@ namespace SETemplate.Common.Modules.Template
         /// </remarks>
         public static string[] GetTemplatePaths(string startPath)
         {
-            return QueryDirectoryStructure(startPath, n => n.StartsWith("QT") || n.Equals("SETemplate"), "bin", "obj", "node_modules");
+            return QueryDirectoryStructure(startPath, n => n.StartsWith("SE"), "bin", "obj", "node_modules");
         }
         /// <summary>
         /// Retrieves an array of string values representing the paths to SETemplate solutions within a specified directory.
@@ -74,9 +74,9 @@ namespace SETemplate.Common.Modules.Template
         public static string[] GetTemplateSolutions(string startPath)
         {
             var result = new List<string>();
-            var qtPaths = GetTemplatePaths(startPath);
+            var paths = GetTemplatePaths(startPath);
 
-            foreach (var qtPath in qtPaths)
+            foreach (var qtPath in paths)
             {
                 var di = new DirectoryInfo(qtPath);
 
@@ -187,6 +187,25 @@ namespace SETemplate.Common.Modules.Template
             var result = Directory.GetParent(path);
 
             return result != null ? result.FullName : path;
+        }
+
+        /// <summary>
+        /// Retrieves the solution path by examining the execution path.
+        /// </summary>
+        /// <returns>The directory path of the solution file if found; otherwise, an empty string.</returns>
+        public static string GetSolutionPathByExecution()
+        {
+            var result = string.Empty;
+            var executionPath = AppDomain.CurrentDomain.BaseDirectory;
+
+            // Search for the solution file in the current directory and parent directories
+            var solutionFile = FindSolutionFilePath(executionPath);
+
+            if (solutionFile != null)
+            {
+                result = Path.GetDirectoryName(solutionFile) ?? string.Empty;
+            }
+            return result;
         }
 
         /// <summary>
@@ -490,4 +509,3 @@ namespace SETemplate.Common.Modules.Template
         #endregion CLI argument methods
     }
 }
-//MdEnd

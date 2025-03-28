@@ -1,5 +1,5 @@
 //@BaseCode
-//MdStart
+
 namespace TemplateTools.ConApp.Modules
 {
     using SETemplate.Common.Extensions;
@@ -725,4 +725,4 @@ namespace TemplateTools.ConApp.Modules
         }
     }
 }
-//MdEnd
+

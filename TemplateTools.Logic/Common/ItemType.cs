@@ -1,5 +1,5 @@
 //@BaseCode
-//MdStart
+
 namespace TemplateTools.Logic.Common
 {
     [Flags]
@@ -65,4 +65,3 @@ namespace TemplateTools.Logic.Common
         #endregion general
     }
 }
-//MdEnd

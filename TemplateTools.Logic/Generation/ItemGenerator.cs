@@ -1,5 +1,5 @@
 //@BaseCode
-//MdStart
+
 namespace TemplateTools.Logic.Generation
 {
     using System.Reflection;
@@ -22,7 +22,7 @@ namespace TemplateTools.Logic.Generation
         /// </returns>
         protected virtual bool CanCreate(Type type)
         {
-            return EntityProject.IsNotAGenerationEntity(type) == false;
+            return true;// EntityProject.IsNotAGenerationEntity(type) == false;
         }
         /// <summary>
         /// Determines whether a property can be created.
@@ -65,7 +65,7 @@ namespace TemplateTools.Logic.Generation
         /// </summary>
         /// <param name="solutionProperties">The solution properties.</param>
         protected ItemGenerator(ISolutionProperties solutionProperties)
-        : base(solutionProperties)
+            : base(solutionProperties)
         {
 
         }
@@ -318,7 +318,7 @@ namespace TemplateTools.Logic.Generation
             result.Add($"static partial void AfterCreate({itemType} instance, {delegateName} other);");
             return result;
         }
-        #endregion create factory methode
+        #endregion create items
 
         #region create property
         /// <summary>
@@ -1040,7 +1040,7 @@ namespace TemplateTools.Logic.Generation
                 foreach (var settingNameValue in settingNameValues)
                 {
                     var settingValue = result.TryGetValue(settingNameValue, out string? value) ? value : string.Empty;
-                    
+
                     settingValue = QuerySetting<string>(unitType, itemType, itemName, settingNameValue, settingValue);
                     settingValue = QuerySetting<string>(unitType, itemType, fullItemName, settingNameValue, settingValue);
                     if (result.ContainsKey(settingNameValue) == false)
@@ -1113,4 +1113,4 @@ namespace TemplateTools.Logic.Generation
         #endregion query settings
     }
 }
-//MdEnd
+

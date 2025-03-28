@@ -1,5 +1,5 @@
 //@BaseCode
-//MdStart
+
 using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Text;
@@ -707,4 +707,4 @@ namespace SETemplate.Common.Extensions
         }
     }
 }
-//MdEnd
+

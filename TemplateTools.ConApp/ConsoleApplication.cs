@@ -1,5 +1,5 @@
 ﻿//@BaseCode
-//MdStart
+
 namespace TemplateTools.ConApp
 {
     public abstract partial class ConsoleApplication : CommonTool.ConsoleApplication
@@ -21,7 +21,7 @@ namespace TemplateTools.ConApp
             }
             if (string.IsNullOrEmpty(SolutionPath))
             {
-                SolutionPath = GetSolutionPathByExecution();
+                SolutionPath = TemplatePath.GetSolutionPathByExecution();
             }
             ClassConstructed();
         }
@@ -73,25 +73,6 @@ namespace TemplateTools.ConApp
             result.AddRange(files);
             return result;
         }
-        /// <summary>
-        /// Retrieves the solution path by examining the execution path.
-        /// </summary>
-        /// <returns>The directory path of the solution file if found; otherwise, an empty string.</returns>
-        public static string GetSolutionPathByExecution()
-        {
-            var result = string.Empty;
-            var executionPath = AppDomain.CurrentDomain.BaseDirectory;
-
-            // Search for the solution file in the current directory and parent directories
-            var solutionFile = TemplatePath.FindSolutionFilePath(executionPath);
-
-            if (solutionFile != null)
-            {
-                result = Path.GetDirectoryName(solutionFile) ?? string.Empty;
-            }
-            return result;
-        }
         #endregion Helpers
     }
 }
-//MdEnd

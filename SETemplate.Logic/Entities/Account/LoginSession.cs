@@ -1,5 +1,5 @@
 //@BaseCode
-//MdStart
+
 #if ACCOUNT_ON
 namespace SETemplate.Logic.Entities.Account
 {
@@ -250,4 +250,4 @@ namespace SETemplate.Logic.Entities.Account
     }
 }
 #endif
-//MdEnd
+

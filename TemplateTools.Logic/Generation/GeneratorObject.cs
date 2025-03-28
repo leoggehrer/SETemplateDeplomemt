@@ -1,5 +1,5 @@
 //@BaseCode
-//MdStart
+
 namespace TemplateTools.Logic.Generation
 {
     using System.ComponentModel.DataAnnotations;
@@ -351,4 +351,4 @@ namespace TemplateTools.Logic.Generation
         #endregion helpers
     }
 }
-//MdEnd
+
