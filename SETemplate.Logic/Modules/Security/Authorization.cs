@@ -8,6 +8,7 @@ using System.Reflection;
 namespace SETemplate.Logic.Modules.Security
 {
     using CommonModules.Exceptions;
+    using SETemplate.Logic.Modules.Account;
 
     /// <summary>
     /// Provides authorization functionality for checking permissions and roles.

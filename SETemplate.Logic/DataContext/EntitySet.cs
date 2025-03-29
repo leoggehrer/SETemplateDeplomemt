@@ -62,7 +62,7 @@ namespace SETemplate.Logic.DataContext
         /// <returns>A new instance of the entity.</returns>
         public virtual TEntity Create()
         {
-            return CreateInternal();
+            return ExecuteCreate();
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace SETemplate.Logic.DataContext
         /// <returns>The count of entities.</returns>
         public virtual int Count()
         {
-            return CountInternal();
+            return ExecuteCount();
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace SETemplate.Logic.DataContext
         /// <returns>A task that represents the asynchronous operation. The task result contains the count of entities.</returns>
         public virtual Task<int> CountAsync()
         {
-            return CountInternalAsync();
+            return ExecuteCountAsync();
         }
 
         /// <summary>
@@ -89,7 +89,26 @@ namespace SETemplate.Logic.DataContext
         /// <returns>An <see cref="IQueryable{TEntity}"/> that can be used to query the set of entities.</returns>
         public virtual IQueryable<TEntity> AsQuerySet()
         {
-            return AsQuerySetInternal();
+            return ExecuteAsQuerySet();
+        }
+
+        /// <summary>
+        /// Returns an <see cref="IQueryable{TEntity}"/> that can be used to query the set of entities without tracking changes.
+        /// </summary>
+        /// <returns>An <see cref="IQueryable{TEntity}"/> that can be used to query the set of entities without tracking changes.</returns>
+        public virtual IQueryable<TEntity> AsNoTrackingSet()
+        {
+            return ExecuteAsNoTrackingSet();
+        }
+
+        /// <summary>
+        /// Returns the element of type T with the identification of id.
+        /// </summary>
+        /// <param name="id">The identification.</param>
+        /// <returns>The element of the type T with the corresponding identification.</returns>
+        public virtual ValueTask<TEntity?> GetByIdAsync(IdType id)
+        {
+            return ExecuteGetByIdAsync(id);
         }
 
         /// <summary>
@@ -99,7 +118,7 @@ namespace SETemplate.Logic.DataContext
         /// <returns>The added entity.</returns>
         public virtual TEntity Add(TEntity entity)
         {
-            return AddInternal(entity);
+            return ExecuteAdd(entity);
         }
 
         /// <summary>
@@ -109,7 +128,7 @@ namespace SETemplate.Logic.DataContext
         /// <returns>A task that represents the asynchronous operation. The task result contains the added entity.</returns>
         public virtual Task<TEntity> AddAsync(TEntity entity)
         {
-            return AddInternalAsync(entity);
+            return ExecuteAddAsync(entity);
         }
 
         /// <summary>
@@ -118,9 +137,9 @@ namespace SETemplate.Logic.DataContext
         /// <param name="id">The identifier of the entity to update.</param>
         /// <param name="entity">The entity with updated values.</param>
         /// <returns>The updated entity, or null if the entity was not found.</returns>
-        public virtual TEntity? Update(int id, TEntity entity)
+        public virtual TEntity? Update(IdType id, TEntity entity)
         {
-            return UpdateInternal(id, entity);
+            return ExecuteUpdate(id, entity);
         }
 
         /// <summary>
@@ -129,9 +148,9 @@ namespace SETemplate.Logic.DataContext
         /// <param name="id">The identifier of the entity to update.</param>
         /// <param name="entity">The entity with updated values.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the updated entity, or null if the entity was not found.</returns>
-        public virtual Task<TEntity?> UpdateAsync(int id, TEntity entity)
+        public virtual Task<TEntity?> UpdateAsync(IdType id, TEntity entity)
         {
-            return UpdateInternalAsync(id, entity);
+            return ExecuteUpdateAsync(id, entity);
         }
 
         /// <summary>
@@ -139,9 +158,9 @@ namespace SETemplate.Logic.DataContext
         /// </summary>
         /// <param name="id">The identifier of the entity to remove.</param>
         /// <returns>The removed entity, or null if the entity was not found.</returns>
-        public virtual TEntity? Remove(int id)
+        public virtual TEntity? Remove(IdType id)
         {
-            return RemoveInternal(id);
+            return ExecuteRemove(id);
         }
 
         /// <summary>

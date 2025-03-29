@@ -8,7 +8,7 @@ namespace SETemplate.Logic.DataContext
         /// Creates a new instance of the entity.
         /// </summary>
         /// <returns>A new instance of the entity.</returns>
-        internal virtual TEntity CreateInternal()
+        internal virtual TEntity ExecuteCreate()
         {
             return new TEntity();
         }
@@ -17,7 +17,7 @@ namespace SETemplate.Logic.DataContext
         /// Returns the count of entities in the set.
         /// </summary>
         /// <returns>The count of entities.</returns>
-        internal virtual int CountInternal()
+        internal virtual int ExecuteCount()
         {
             return DbSet.Count();
         }
@@ -26,7 +26,7 @@ namespace SETemplate.Logic.DataContext
         /// Returns the count of entities in the set asynchronously.
         /// </summary>
         /// <returns>A task that represents the asynchronous operation. The task result contains the count of entities.</returns>
-        internal virtual Task<int> CountInternalAsync()
+        internal virtual Task<int> ExecuteCountAsync()
         {
             return DbSet.CountAsync();
         }
@@ -35,14 +35,30 @@ namespace SETemplate.Logic.DataContext
         /// Gets the queryable set of entities.
         /// </summary>
         /// <returns>An <see cref="IQueryable{TEntity}"/> that can be used to query the set of entities.</returns>
-        internal virtual IQueryable<TEntity> AsQuerySetInternal() => DbSet.AsQueryable();
+        internal virtual IQueryable<TEntity> ExecuteAsQuerySet() => DbSet.AsQueryable();
+
+        /// <summary>
+        /// Gets the no tracking queryable set of entities.
+        /// </summary>
+        /// <returns>An <see cref="IQueryable{TEntity}"/> that can be used to query the set of entities.</returns>
+        internal virtual IQueryable<TEntity> ExecuteAsNoTrackingSet() => ExecuteAsQuerySet().AsNoTracking();
+
+        /// <summary>
+        /// Returns the element of type T with the identification of id.
+        /// </summary>
+        /// <param name="id">The identification.</param>
+        /// <returns>The element of the type T with the corresponding identification.</returns>
+        internal virtual ValueTask<TEntity?> ExecuteGetByIdAsync(IdType id)
+        {
+            return DbSet.FindAsync(id);
+        }
 
         /// <summary>
         /// Adds the specified entity to the set.
         /// </summary>
         /// <param name="entity">The entity to add.</param>
         /// <returns>The added entity.</returns>
-        internal virtual TEntity AddInternal(TEntity entity)
+        internal virtual TEntity ExecuteAdd(TEntity entity)
         {
             BeforeAdding(entity);
             return DbSet.Add(entity).Entity;
@@ -53,7 +69,7 @@ namespace SETemplate.Logic.DataContext
         /// </summary>
         /// <param name="entity">The entity to add.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the added entity.</returns>
-        internal virtual async Task<TEntity> AddInternalAsync(TEntity entity)
+        internal virtual async Task<TEntity> ExecuteAddAsync(TEntity entity)
         {
             BeforeAdding(entity);
             var result = await DbSet.AddAsync(entity).ConfigureAwait(false);
@@ -67,7 +83,7 @@ namespace SETemplate.Logic.DataContext
         /// <param name="id">The identifier of the entity to update.</param>
         /// <param name="entity">The entity with updated values.</param>
         /// <returns>The updated entity, or null if the entity was not found.</returns>
-        internal virtual TEntity? UpdateInternal(int id, TEntity entity)
+        internal virtual TEntity? ExecuteUpdate(IdType id, TEntity entity)
         {
             BeforeUpdating(entity);
 
@@ -85,7 +101,7 @@ namespace SETemplate.Logic.DataContext
         /// <param name="id">The identifier of the entity to update.</param>
         /// <param name="entity">The entity with updated values.</param>
         /// <returns>A task that represents the asynchronous operation. The task result contains the updated entity, or null if the entity was not found.</returns>
-        internal virtual async Task<TEntity?> UpdateInternalAsync(int id, TEntity entity)
+        internal virtual async Task<TEntity?> ExecuteUpdateAsync(IdType id, TEntity entity)
         {
             BeforeUpdating(entity);
 
@@ -102,7 +118,7 @@ namespace SETemplate.Logic.DataContext
         /// </summary>
         /// <param name="id">The identifier of the entity to remove.</param>
         /// <returns>The removed entity, or null if the entity was not found.</returns>
-        internal virtual TEntity? RemoveInternal(int id)
+        internal virtual TEntity? ExecuteRemove(IdType id)
         {
             var entity = DbSet.Find(id);
 

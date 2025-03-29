@@ -1,5 +1,4 @@
 //@BaseCode
-
 #if ACCOUNT_ON
 namespace SETemplate.Logic.Entities.Account
 {

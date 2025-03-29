@@ -7,7 +7,10 @@ namespace SETemplate.Common.Modules.Exceptions
     public static partial class ErrorType
     {
 #if ACCOUNT_ON
+        public const int InvalidEntitySet = 1;
+
         public const int InitAppAccess = 10;
+        public const int AddAppAccess = 11;
         public const int InvalidAccount = 20;
         public const int InvalidIdentityName = 30;
         public const int InvalidPasswordSyntax = 40;

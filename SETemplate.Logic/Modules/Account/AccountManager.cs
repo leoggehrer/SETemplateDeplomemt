@@ -1,11 +1,8 @@
 //@BaseCode
-//MdStart
 #if ACCOUNT_ON
-using Microsoft.IdentityModel.Tokens;
 using SETemplate.Logic.Entities.Account;
 using SETemplate.Logic.Modules.Exceptions;
 using SETemplate.Logic.Modules.Security;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -66,25 +63,29 @@ namespace SETemplate.Logic.Modules.Account
         /// <param name="name">The name of the user.</param>
         /// <param name="email">The email of the user.</param>
         /// <param name="password">The password for the user.</param>
-        /// <param name="enableJwtAuth">A flag indicating whether to enable JWT authentication.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         /// <exception cref="AuthorizationException">Thrown when there is an authorization error.</exception>
         /// <exception cref="Exception">Thrown when an unexpected exception occurs.</exception>
-        public static async Task InitAppAccessAsync(string name, string email, string password, bool enableJwtAuth)
+        public static async Task InitAppAccessAsync(string name, string email, string password)
         {
             if (CheckPasswordSyntax(password) == false)
                 throw new AuthorizationException(Error.InvalidPasswordSyntax, PasswordRules.SyntaxRoles);
 
-            using var identitiesCtrl = new Controllers.Account.IdentitiesController()
-            {
-                SessionToken = Authorization.SystemAuthorizationToken,
-            };
-            var identityCount = await identitiesCtrl.CountAsync().ConfigureAwait(false);
+#if GENERATEDCODE_ON
+            using var context = new DataContext.ProjectDbContext();
+            var identitySet = context.IdentitySet as DataContext.Account.IdentitySet 
+                            ?? throw new AuthorizationException(Error.InvalidEntitySet);
+            var secureIdentitySet = context.SecureIdentitySet as DataContext.Account.SecureIdentitySet
+                            ?? throw new AuthorizationException(Error.InvalidEntitySet);
+
+            var identityCount = await identitySet.ExecuteCountAsync().ConfigureAwait(false);
 
             if (identityCount == 0)
             {
-                using var rolesCtrl = new Controllers.Account.RolesController(identitiesCtrl);
-                using var identityXRolesCtrl = new Controllers.Account.IdentityXRolesController(identitiesCtrl);
+                var roleSet = context.RoleSet as DataContext.Account.RoleSet
+                            ?? throw new AuthorizationException(Error.InvalidEntitySet);
+                var identityXRoleSet = context.IdentityXRoleSet as DataContext.Account.IdentityXRoleSet
+                            ?? throw new AuthorizationException(Error.InvalidEntitySet);
 
                 try
                 {
@@ -101,7 +102,6 @@ namespace SETemplate.Logic.Modules.Account
                         Email = email,
                         PasswordHash = Hash,
                         PasswordSalt = Salt,
-                        EnableJwtAuth = enableJwtAuth,
                     };
                     var IdentityXRole = new IdentityXRole
                     {
@@ -109,10 +109,10 @@ namespace SETemplate.Logic.Modules.Account
                         Role = role,
                     };
 
-                    await rolesCtrl.ExecuteInsertAsync(role).ConfigureAwait(false);
-                    await identityXRolesCtrl.ExecuteInsertAsync(IdentityXRole).ConfigureAwait(false);
-                    await identitiesCtrl.ExecuteInsertAsync(identity).ConfigureAwait(false);
-                    await identitiesCtrl.SaveChangesAsync().ConfigureAwait(false);
+                    await roleSet.ExecuteAddAsync(role).ConfigureAwait(false);
+                    await identityXRoleSet.ExecuteAddAsync(IdentityXRole).ConfigureAwait(false);
+                    await secureIdentitySet.ExecuteAddAsync(identity).ConfigureAwait(false);
+                    await context.ExecuteSaveChangesAsync().ConfigureAwait(false);
                 }
                 catch (Exception)
                 {
@@ -123,6 +123,9 @@ namespace SETemplate.Logic.Modules.Account
             {
                 throw new AuthorizationException(Error.InitAppAccess);
             }
+#else
+            await Task.Delay(1000);
+#endif
         }
         /// <summary>
         /// Adds a new application access with the specified parameters.
@@ -132,23 +135,25 @@ namespace SETemplate.Logic.Modules.Account
         /// <param name="email">The email of the user.</param>
         /// <param name="password">The password of the user.</param>
         /// <param name="timeOutInMinutes">The timeout in minutes for the user's session.</param>
-        /// <param name="enableJwtAuth">Flag to enable JWT authentication for the user.</param>
         /// <param name="roles">The roles assigned to the user.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
         /// <exception cref="AuthorizationException">Thrown when the password syntax is invalid.</exception>
         /// <exception cref="Exception">Thrown when an error occurs during the operation.</exception>
         [Authorize("SysAdmin", "AppAdmin")]
-        public static async Task AddAppAccessAsync(string sessionToken, string name, string email, string password, int timeOutInMinutes, bool enableJwtAuth, params string[] roles)
+        public static async Task AddAppAccessAsync(string sessionToken, string name, string email, string password, int timeOutInMinutes, params string[] roles)
         {
             await Authorization.CheckAuthorizationAsync(sessionToken, MethodBase.GetCurrentMethod()!.GetAsyncOriginal(), nameof(AddAppAccessAsync)).ConfigureAwait(false);
 
             if (CheckPasswordSyntax(password) == false)
                 throw new AuthorizationException(Error.InvalidPasswordSyntax, PasswordRules.SyntaxRoles);
 
-            using var identitiesCtrl = new Controllers.Account.IdentitiesController()
-            {
-                SessionToken = sessionToken,
-            };
+#if GENERATEDCODE_ON
+            using var context = new DataContext.ProjectDbContext();
+            var identitySet = context.IdentitySet as DataContext.Account.IdentitySet
+                            ?? throw new AuthorizationException(Error.InvalidEntitySet);
+            var secureIdentitySet = context.SecureIdentitySet as DataContext.Account.SecureIdentitySet
+                            ?? throw new AuthorizationException(Error.InvalidEntitySet);
+
             try
             {
                 var (Hash, Salt) = CreatePasswordHash(password);
@@ -160,14 +165,15 @@ namespace SETemplate.Logic.Modules.Account
                     PasswordHash = Hash,
                     PasswordSalt = Salt,
                     TimeOutInMinutes = timeOutInMinutes,
-                    EnableJwtAuth = enableJwtAuth,
                 };
 
                 if (roles.Length > 0)
                 {
-                    using var rolesCtrl = new Controllers.Account.RolesController(identitiesCtrl);
-                    using var identityXRolesCtrl = new Controllers.Account.IdentityXRolesController(identitiesCtrl);
-                    var rolesInDb = await rolesCtrl.GetAllAsync().ConfigureAwait(false);
+                    var roleSet = context.RoleSet as DataContext.Account.RoleSet
+                                ?? throw new AuthorizationException(Error.InvalidEntitySet);
+                    var identityXRoleSet = context.IdentityXRoleSet as DataContext.Account.IdentityXRoleSet
+                                ?? throw new AuthorizationException(Error.InvalidEntitySet);
+                    var rolesInDb = await roleSet.ExecuteAsNoTrackingSet().ToArrayAsync().ConfigureAwait(false);
 
                     foreach (var role in roles)
                     {
@@ -181,7 +187,7 @@ namespace SETemplate.Logic.Modules.Account
                                 RoleId = dbRole.Id,
                                 Identity = identity,
                             };
-                            await identityXRolesCtrl.InsertAsync(identityXRole).ConfigureAwait(false);
+                            await identityXRoleSet.ExecuteAddAsync(identityXRole).ConfigureAwait(false);
                         }
                         else
                         {
@@ -195,75 +201,29 @@ namespace SETemplate.Logic.Modules.Account
                                 Role = newRole,
                                 Identity = identity,
                             };
-                            await rolesCtrl.InsertAsync(newRole).ConfigureAwait(false);
-                            await identityXRolesCtrl.InsertAsync(identityXRole).ConfigureAwait(false);
+                            await roleSet.ExecuteAddAsync(newRole).ConfigureAwait(false);
+                            await identityXRoleSet.ExecuteAddAsync(identityXRole).ConfigureAwait(false);
                         }
-                        await identitiesCtrl.InsertAsync(identity).ConfigureAwait(false);
+                        await secureIdentitySet.ExecuteAddAsync(identity).ConfigureAwait(false);
                     }
                 }
                 else
                 {
-                    await identitiesCtrl.InsertAsync(identity).ConfigureAwait(false);
+                    await secureIdentitySet.ExecuteAddAsync(identity).ConfigureAwait(false);
                 }
-                await identitiesCtrl.SaveChangesAsync();
+                await context.ExecuteSaveChangesAsync().ConfigureAwait(false);
             }
             catch (Exception)
             {
                 throw;
             }
+#else
+            await Task.Delay(1000);
+#endif
         }
         #endregion Create accounts
 
         #region Logon and Logout
-        /// <summary>
-        /// Logs in a user asynchronously using a JSON Web Token (JWT).
-        /// </summary>
-        /// <param name="jsonWebToken">The JSON Web Token to be used for authorization.</param>
-        /// <returns>A task representing the asynchronous operation. The task result contains the logged in <see cref="LoginSession"/>.</returns>
-        /// <exception cref="AuthorizationException">Thrown if the authorization fails or the account is invalid.</exception>
-        public static async Task<LoginSession> LogonAsync(string jsonWebToken)
-        {
-            var result = default(LoginSession);
-
-            if (JsonWebToken.CheckToken(jsonWebToken, out SecurityToken? validatedToken))
-            {
-                if (validatedToken != null && validatedToken.ValidTo < DateTime.UtcNow)
-                    throw new AuthorizationException(Error.AuthorizationTimeOut);
-
-                if (validatedToken is JwtSecurityToken jwtValidatedToken)
-                {
-                    var email = jwtValidatedToken.Claims.FirstOrDefault(e => e.Type == ClaimTypes.Email);
-
-                    if (email != null && email.Value != null)
-                    {
-                        using var identitiesCtrl = new Controllers.Account.IdentitiesController()
-                        {
-                            SessionToken = Authorization.SystemAuthorizationToken
-                        };
-                        var identity = await identitiesCtrl.EntitySet
-                                                           .FirstOrDefaultAsync(e => e.State == CommonEnums.State.Active
-                                                                                  && e.EnableJwtAuth == true
-                                                                                  && e.Email.Equals(email.Value.ToString(), StringComparison.CurrentCultureIgnoreCase))
-                                                           .ConfigureAwait(false);
-
-                        if (identity != null)
-                        {
-                            result = await QueryLoginByEmailAsync(identity.Email, identity.Password, string.Empty).ConfigureAwait(false);
-
-                            if (result != null)
-                            {
-                                result.IsRemoteAuth = true;
-                            }
-                        }
-                    }
-                }
-            }
-            else
-            {
-                throw new AuthorizationException(Error.InvalidJsonWebToken);
-            }
-            return result ?? throw new AuthorizationException(Error.InvalidAccount);
-        }
         /// <summary>
         /// Asynchronously logs in a user with the specified email and password.
         /// </summary>
@@ -303,19 +263,20 @@ namespace SETemplate.Logic.Modules.Account
         public static async Task LogoutAsync(string sessionToken)
         {
             await Authorization.CheckAuthorizationAsync(sessionToken, MethodBase.GetCurrentMethod()!.GetAsyncOriginal(), nameof(LogoutAsync)).ConfigureAwait(false);
-
+#if GENERATEDCODE_ON
             try
             {
                 var saveChanges = false;
                 var logoutTime = DateTime.UtcNow;
-                using var sessionCtrl = new Controllers.Account.LoginSessionsController()
-                {
-                    SessionToken = Authorization.SystemAuthorizationToken
-                };
-                var dbSessions = await sessionCtrl.EntitySet
-                                                  .Where(e => e.SessionToken.Equals(sessionToken))
-                                                  .ToArrayAsync()
-                                                  .ConfigureAwait(false);
+                using var context = new DataContext.ProjectDbContext();
+                var identitySet = context.IdentitySet as DataContext.Account.IdentitySet
+                                ?? throw new AuthorizationException(Error.InvalidEntitySet);
+                var loginSessionSet = context.LoginSessionSet as DataContext.Account.LoginSessionSet
+                                ?? throw new AuthorizationException(Error.InvalidEntitySet);
+                var dbSessions = await loginSessionSet.ExecuteAsQuerySet()
+                                                      .Where(e => e.SessionToken.Equals(sessionToken))
+                                                      .ToArrayAsync()
+                                                      .ConfigureAwait(false);
 
                 foreach (var dbSession in dbSessions)
                 {
@@ -324,12 +285,12 @@ namespace SETemplate.Logic.Modules.Account
                         saveChanges = true;
                         dbSession.LogoutTime = logoutTime;
 
-                        await sessionCtrl.UpdateAsync(dbSession).ConfigureAwait(false);
+                        await loginSessionSet.ExecuteUpdateAsync(dbSession.Id, dbSession).ConfigureAwait(false);
                     }
                 }
                 if (saveChanges)
                 {
-                    await sessionCtrl.SaveChangesAsync().ConfigureAwait(false);
+                    await context.ExecuteSaveChangesAsync().ConfigureAwait(false);
                 }
 
                 var memSessions = LoginSessions.Where(ls => ls.SessionToken.Equals(sessionToken));
@@ -346,6 +307,9 @@ namespace SETemplate.Logic.Modules.Account
             {
                 System.Diagnostics.Debug.WriteLine($"Error in {typeof(AccountManager)?.Name}: {ex.Message}");
             }
+#else
+            await Task.Delay(1000);
+#endif
         }
         #endregion Logon and Logout
 
@@ -366,15 +330,6 @@ namespace SETemplate.Logic.Modules.Account
         /// <returns>
         /// The <see cref="IEnumerable{T}"/> of role names associated with the session token.
         /// </returns>
-        /// <exception cref="AuthorizationException">
-        /// Thrown if the request to check authorization fails.
-        /// </exception>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if the session token is null.
-        /// </exception>
-        /// <remarks>
-        /// This method requires authorization.
-        /// </remarks>
         [Authorize]
         public static async Task<IEnumerable<string>> QueryRolesAsync(string sessionToken)
         {
@@ -404,9 +359,6 @@ namespace SETemplate.Logic.Modules.Account
         /// </summary>
         /// <param name="sessionToken">The session token.</param>
         /// <returns>The login session if found; otherwise, null.</returns>
-        /// <remarks>
-        /// This method requires authorization.
-        /// </remarks>
         [Authorize]
         public static async Task<LoginSession?> QueryLoginAsync(string sessionToken)
         {
@@ -434,15 +386,15 @@ namespace SETemplate.Logic.Modules.Account
                 throw new AuthorizationException(Error.InvalidPasswordSyntax, PasswordRules.SyntaxRoles);
 
             var login = await QueryAliveSessionAsync(sessionToken).ConfigureAwait(false)
-            ?? throw new AuthorizationException(Error.InvalidToken);
-
-            using var identitiesCtrl = new Controllers.Account.IdentitiesController()
-            {
-                SessionToken = Authorization.SystemAuthorizationToken
-            };
-            var identity = await identitiesCtrl.EntitySet
-                                               .FirstOrDefaultAsync(e => e.Id == login.IdentityId)
-                                               .ConfigureAwait(false);
+                      ?? throw new AuthorizationException(Error.InvalidToken);
+#if GENERATEDCODE_ON
+            using var context = new DataContext.ProjectDbContext();
+            var identitySet = context.IdentitySet as DataContext.Account.IdentitySet
+                            ?? throw new AuthorizationException(Error.InvalidEntitySet);
+            var secureIdentitySet = context.SecureIdentitySet as DataContext.Account.SecureIdentitySet
+                            ?? throw new AuthorizationException(Error.InvalidEntitySet);
+            var identity = await secureIdentitySet.ExecuteGetByIdAsync(login.IdentityId)
+                                                  .ConfigureAwait(false);
 
             if (identity != null)
             {
@@ -455,14 +407,17 @@ namespace SETemplate.Logic.Modules.Account
                 identity.PasswordHash = Hash;
                 identity.PasswordSalt = Salt;
 
-                await identitiesCtrl.UpdateAsync(identity).ConfigureAwait(false);
-                await identitiesCtrl.SaveChangesAsync().ConfigureAwait(false);
+                await secureIdentitySet.ExecuteUpdateAsync(identity.Id, identity).ConfigureAwait(false);
+                await context.ExecuteSaveChangesAsync().ConfigureAwait(false);
                 if (login.Identity != null)
                 {
                     login.Identity.PasswordHash = Hash;
                     login.Identity.PasswordSalt = Salt;
                 }
             }
+#else   
+            await Task.Delay(1000);
+#endif
         }
         /// <summary>
         /// Changes the password for a given user account.
@@ -480,18 +435,21 @@ namespace SETemplate.Logic.Modules.Account
             if (CheckPasswordSyntax(newPassword) == false)
                 throw new AuthorizationException(Error.InvalidPasswordSyntax, PasswordRules.SyntaxRoles);
 
+#if GENERATEDCODE_ON
             var login = await QueryAliveSessionAsync(sessionToken).ConfigureAwait(false)
-            ?? throw new AuthorizationException(Error.InvalidToken);
+                      ?? throw new AuthorizationException(Error.InvalidToken);
 
-            using var identitiesCtrl = new Controllers.Account.IdentitiesController()
-            {
-                SessionToken = sessionToken
-            };
-            var identity = await identitiesCtrl.EntitySet
-                                               .FirstOrDefaultAsync(e => e.State == CommonEnums.State.Active
-                                                                      && e.AccessFailedCount < 4
-                                                                      && e.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase))
-                                               .ConfigureAwait(false) ?? throw new AuthorizationException(Error.InvalidAccount);
+            using var context = new DataContext.ProjectDbContext();
+            var identitySet = context.IdentitySet as DataContext.Account.IdentitySet
+                            ?? throw new AuthorizationException(Error.InvalidEntitySet);
+            var secureIdentitySet = context.SecureIdentitySet as DataContext.Account.SecureIdentitySet
+                            ?? throw new AuthorizationException(Error.InvalidEntitySet);
+            var identity = await secureIdentitySet.ExecuteAsQuerySet()
+                                                  .FirstOrDefaultAsync(e => e.State == CommonEnums.State.Active
+                                                                         && e.AccessFailedCount < 4
+                                                                         && e.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase))
+                                                  .ConfigureAwait(false) 
+                            ?? throw new AuthorizationException(Error.InvalidAccount);
             var (Hash, Salt) = CreatePasswordHash(newPassword);
 
             identity.AccessFailedCount = 0;
@@ -499,13 +457,16 @@ namespace SETemplate.Logic.Modules.Account
             identity.PasswordHash = Hash;
             identity.PasswordSalt = Salt;
 
-            await identitiesCtrl.UpdateAsync(identity).ConfigureAwait(false);
-            await identitiesCtrl.SaveChangesAsync().ConfigureAwait(false);
+            await secureIdentitySet.ExecuteUpdateAsync(identity.Id, identity).ConfigureAwait(false);
+            await context.ExecuteSaveChangesAsync().ConfigureAwait(false);
             if (login.Identity != null)
             {
                 login.Identity.PasswordHash = Hash;
                 login.Identity.PasswordSalt = Salt;
             }
+#else
+            await Task.Delay(1000);
+#endif
         }
         /// <summary>
         /// Resets the failed count for a given session token and email.
@@ -519,20 +480,23 @@ namespace SETemplate.Logic.Modules.Account
             await Authorization.CheckAuthorizationAsync(sessionToken, MethodBase.GetCurrentMethod()!.GetAsyncOriginal(), nameof(ResetFailedCountForAsync)).ConfigureAwait(false);
 
             var login = await QueryAliveSessionAsync(sessionToken).ConfigureAwait(false)
-            ?? throw new AuthorizationException(Error.InvalidToken);
-
-            using var identitiesCtrl = new Controllers.Account.IdentitiesController()
-            {
-                SessionToken = sessionToken
-            };
-            var identity = await identitiesCtrl.EntitySet
-                                               .FirstOrDefaultAsync(e => e.State == CommonEnums.State.Active
-                                                                      && e.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase))
-                                               .ConfigureAwait(false) ?? throw new AuthorizationException(Error.InvalidAccount);
+                      ?? throw new AuthorizationException(Error.InvalidToken);
+#if GENERATEDCODE_ON
+            using var context = new DataContext.ProjectDbContext();
+            var identitySet = context.IdentitySet as DataContext.Account.IdentitySet
+                            ?? throw new AuthorizationException(Error.InvalidEntitySet);
+            var identity = await identitySet.ExecuteAsQuerySet()
+                                            .FirstOrDefaultAsync(e => e.State == CommonEnums.State.Active
+                                                                   && e.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase))
+                                            .ConfigureAwait(false) 
+                            ?? throw new AuthorizationException(Error.InvalidAccount);
 
             identity.AccessFailedCount = 0;
-            await identitiesCtrl.UpdateAsync(identity).ConfigureAwait(false);
-            await identitiesCtrl.SaveChangesAsync().ConfigureAwait(false);
+            await identitySet.ExecuteUpdateAsync(identity.Id, identity).ConfigureAwait(false);
+            await context.ExecuteSaveChangesAsync().ConfigureAwait(false);
+#else
+            await Task.Delay(1000);
+#endif
         }
         #endregion Change and reset password
 
@@ -556,46 +520,50 @@ namespace SETemplate.Logic.Modules.Account
         /// <returns>The alive session if found, null otherwise.</returns>
         internal static async Task<LoginSession?> QueryAliveSessionAsync(string sessionToken)
         {
-            var result = LoginSessions.FirstOrDefault(ls => ls.IsActive
-            && ls.SessionToken.Equals(sessionToken));
+            var result = LoginSessions.FirstOrDefault(ls => ls.IsActive && ls.SessionToken.Equals(sessionToken));
 
+#if GENERATEDCODE_ON
+            await Task.Delay(1000);
             if (result == null)
             {
-                using var sessionsCtrl = new Controllers.Account.LoginSessionsController()
-                {
-                    SessionToken = Authorization.SystemAuthorizationToken
-                };
-                var session = await sessionsCtrl.EntitySet
-                                                .FirstOrDefaultAsync(e => e.SessionToken.Equals(sessionToken))
-                                                .ConfigureAwait(false);
+                //using var sessionsCtrl = new Controllers.Account.LoginSessionsController()
+                //{
+                //    SessionToken = Authorization.SystemAuthorizationToken
+                //};
+                //var session = await sessionsCtrl.EntitySet
+                //                                .FirstOrDefaultAsync(e => e.SessionToken.Equals(sessionToken))
+                //                                .ConfigureAwait(false);
 
-                if (session != null && session.IsActive)
-                {
-                    using var identitiesCtrl = new Controllers.Account.IdentitiesController(sessionsCtrl);
-                    var identity = await identitiesCtrl.EntitySet
-                                                       .Include(e => e.IdentityXRoles)
-                                                       .ThenInclude(e => e.Role)
-                                                       .FirstOrDefaultAsync(e => e.Id == session.IdentityId)
-                                                       .ConfigureAwait(false);
+                //if (session != null && session.IsActive)
+                //{
+                //    using var identitiesCtrl = new Controllers.Account.IdentitiesController(sessionsCtrl);
+                //    var identity = await identitiesCtrl.EntitySet
+                //                                       .Include(e => e.IdentityXRoles)
+                //                                       .ThenInclude(e => e.Role)
+                //                                       .FirstOrDefaultAsync(e => e.Id == session.IdentityId)
+                //                                       .ConfigureAwait(false);
 
-                    if (identity != null)
-                    {
-                        session.Name = identity.Name;
-                        session.Email = identity.Email;
-                        session.Identity = identity;
-                        session.Roles.AddRange(identity.IdentityXRoles.Select(e => e.Role!));
-                        session.JsonWebToken = JsonWebToken.GenerateToken(new Claim[]
-                        {
-                            new(ClaimTypes.Email, identity.Email),
-                            new(ClaimTypes.System, nameof(SETemplate)),
-                        }.Union(session.Roles.Select(e => new Claim(ClaimTypes.Role, e.Designation))));
+                //    if (identity != null)
+                //    {
+                //        session.Name = identity.Name;
+                //        session.Email = identity.Email;
+                //        session.Identity = identity;
+                //        session.Roles.AddRange(identity.IdentityXRoles.Select(e => e.Role!));
+                //        session.JsonWebToken = JsonWebToken.GenerateToken(new Claim[]
+                //        {
+                //            new(ClaimTypes.Email, identity.Email),
+                //            new(ClaimTypes.System, nameof(SETemplate)),
+                //        }.Union(session.Roles.Select(e => new Claim(ClaimTypes.Role, e.Designation))));
 
-                        result = session.Clone();
-                        LoginSessions.Add(session);
-                    }
-                }
+                //        result = session.Clone();
+                //        LoginSessions.Add(session);
+                //    }
+                //}
             }
             return result;
+#else
+            return await Task.FromResult(result);
+#endif
         }
         /// <summary>
         /// Queries the alive session for the specified email and password.
@@ -608,43 +576,47 @@ namespace SETemplate.Logic.Modules.Account
         /// </returns>
         internal static async Task<LoginSession?> QueryAliveSessionAsync(string email, string password)
         {
-            var result = LoginSessions.FirstOrDefault(e => e.IsActive
-            && e.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase));
+            var result = LoginSessions.FirstOrDefault(e => e.IsActive && e.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase));
 
+#if GENERATEDCODE_ON
+            await Task.Delay(1000);
             if (result == null)
             {
-                using var identitiesCtrl = new Controllers.Account.IdentitiesController()
-                {
-                    SessionToken = Authorization.SystemAuthorizationToken,
-                };
-                var identity = await identitiesCtrl.GetValidIdentityByEmailAsync(email).ConfigureAwait(false);
+                //using var identitiesCtrl = new Controllers.Account.IdentitiesController()
+                //{
+                //    SessionToken = Authorization.SystemAuthorizationToken,
+                //};
+                //var identity = await identitiesCtrl.GetValidIdentityByEmailAsync(email).ConfigureAwait(false);
 
-                if (identity != null && VerifyPasswordHash(password, identity.PasswordHash, identity.PasswordSalt))
-                {
-                    using var sessionsCtrl = new Controllers.Account.LoginSessionsController(identitiesCtrl);
-                    var session = await sessionsCtrl.EntitySet
-                                                    .FirstOrDefaultAsync(e => e.LogoutTime == null
-                    && e.IdentityId == identity.Id)
-                        .ConfigureAwait(false);
+                //if (identity != null && VerifyPasswordHash(password, identity.PasswordHash, identity.PasswordSalt))
+                //{
+                //    using var sessionsCtrl = new Controllers.Account.LoginSessionsController(identitiesCtrl);
+                //    var session = await sessionsCtrl.EntitySet
+                //                                    .FirstOrDefaultAsync(e => e.LogoutTime == null
+                //    && e.IdentityId == identity.Id)
+                //        .ConfigureAwait(false);
 
-                    if (session != null && session.IsActive)
-                    {
-                        session.Name = identity.Name;
-                        session.Email = identity.Email;
-                        session.Identity = identity;
-                        session.Roles.AddRange(identity.IdentityXRoles.Select(e => e.Role!));
-                        session.JsonWebToken = JsonWebToken.GenerateToken(new Claim[]
-                        {
-                            new(ClaimTypes.Email, identity.Email),
-                            new(ClaimTypes.System, nameof(SETemplate)),
-                        }.Union(session.Roles.Select(e => new Claim(ClaimTypes.Role, e.Designation))));
+                //    if (session != null && session.IsActive)
+                //    {
+                //        session.Name = identity.Name;
+                //        session.Email = identity.Email;
+                //        session.Identity = identity;
+                //        session.Roles.AddRange(identity.IdentityXRoles.Select(e => e.Role!));
+                //        session.JsonWebToken = JsonWebToken.GenerateToken(new Claim[]
+                //        {
+                //            new(ClaimTypes.Email, identity.Email),
+                //            new(ClaimTypes.System, nameof(SETemplate)),
+                //        }.Union(session.Roles.Select(e => new Claim(ClaimTypes.Role, e.Designation))));
 
-                        result = session.Clone();
-                        LoginSessions.Add(session);
-                    }
-                }
+                //        result = session.Clone();
+                //        LoginSessions.Add(session);
+                //    }
+                //}
             }
             return result;
+#else
+            return await Task.FromResult(result);
+#endif
         }
         /// <summary>
         /// Queries the login session by email asynchronously.
@@ -658,46 +630,47 @@ namespace SETemplate.Logic.Modules.Account
             var result = default(LoginSession);
             var querySession = await QueryAliveSessionAsync(email, password).ConfigureAwait(false);
 
+#if GENERATEDCODE_ON
             if (querySession == null)
             {
-                using var identitiesCtrl = new Controllers.Account.IdentitiesController()
-                {
-                    SessionToken = Authorization.SystemAuthorizationToken,
-                };
-                var identity = await identitiesCtrl.GetValidIdentityByEmailAsync(email).ConfigureAwait(false);
+                //using var identitiesCtrl = new Controllers.Account.IdentitiesController()
+                //{
+                //    SessionToken = Authorization.SystemAuthorizationToken,
+                //};
+                //var identity = await identitiesCtrl.GetValidIdentityByEmailAsync(email).ConfigureAwait(false);
 
-                if (identity != null && VerifyPasswordHash(password, identity.PasswordHash, identity.PasswordSalt))
-                {
-                    using var sessionsCtrl = new Controllers.Account.LoginSessionsController(identitiesCtrl);
-                    var session = new LoginSession
-                    {
-                        IdentityId = identity.Id,
-                        Name = identity.Name,
-                        Email = identity.Email,
-                        OptionalInfo = optionalInfo,
-                        Identity = identity,
-                    };
-                    session.Roles.AddRange(identity.IdentityXRoles.Select(e => e.Role!));
-                    session.JsonWebToken = JsonWebToken.GenerateToken(new Claim[]
-                    {
-                        new(ClaimTypes.Email, identity.Email),
-                        new(ClaimTypes.System, nameof(SETemplate)),
-                    }.Union(session.Roles.Select(e => new Claim(ClaimTypes.Role, e.Designation))));
+                //if (identity != null && VerifyPasswordHash(password, identity.PasswordHash, identity.PasswordSalt))
+                //{
+                //    using var sessionsCtrl = new Controllers.Account.LoginSessionsController(identitiesCtrl);
+                //    var session = new LoginSession
+                //    {
+                //        IdentityId = identity.Id,
+                //        Name = identity.Name,
+                //        Email = identity.Email,
+                //        OptionalInfo = optionalInfo,
+                //        Identity = identity,
+                //    };
+                //    session.Roles.AddRange(identity.IdentityXRoles.Select(e => e.Role!));
+                //    session.JsonWebToken = JsonWebToken.GenerateToken(new Claim[]
+                //    {
+                //        new(ClaimTypes.Email, identity.Email),
+                //        new(ClaimTypes.System, nameof(SETemplate)),
+                //    }.Union(session.Roles.Select(e => new Claim(ClaimTypes.Role, e.Designation))));
                     
-                    AfterQueryLoginByEmail(identity, session);
+                //    AfterQueryLoginByEmail(identity, session);
 
-                    var entity = await sessionsCtrl.InsertAsync(session).ConfigureAwait(false);
+                //    var entity = await sessionsCtrl.InsertAsync(session).ConfigureAwait(false);
 
-                    if (identity.AccessFailedCount > 0)
-                    {
-                        identity.AccessFailedCount = 0;
-                        await identitiesCtrl.UpdateAsync(identity).ConfigureAwait(false);
-                    }
-                    await sessionsCtrl.SaveChangesAsync().ConfigureAwait(false);
+                //    if (identity.AccessFailedCount > 0)
+                //    {
+                //        identity.AccessFailedCount = 0;
+                //        await identitiesCtrl.UpdateAsync(identity).ConfigureAwait(false);
+                //    }
+                //    await sessionsCtrl.SaveChangesAsync().ConfigureAwait(false);
 
-                    result = entity.Clone();
-                    LoginSessions.Add(entity);
-                }
+                //    result = entity.Clone();
+                //    LoginSessions.Add(entity);
+                //}
             }
             else if (VerifyPasswordHash(password, querySession.PasswordHash, querySession.PasswordSalt))
             {
@@ -705,6 +678,9 @@ namespace SETemplate.Logic.Modules.Account
                 result = querySession.Clone();
             }
             return result;
+#else
+            return await Task.FromResult(result);
+#endif
         }
         /// <summary>
         /// Refreshes the alive sessions for a specific identity.
@@ -721,29 +697,34 @@ namespace SETemplate.Logic.Modules.Account
         /// <returns>A task representing the asynchronous operation.</returns>
         internal static async Task RefreshAliveSessionsAsync(IdType identityId)
         {
-            using var identitiesCtrl = new Controllers.Account.IdentitiesController()
-            {
-                SessionToken = Authorization.SystemAuthorizationToken,
-            };
-            foreach (var session in LoginSessions.Where(s => s.IdentityId == identityId))
-            {
-                var identity = await identitiesCtrl.GetValidIdentityByIdAsync(identityId).ConfigureAwait(false);
+#if GENERATEDCODE_ON
+            await Task.Delay(1000);
+            //using var identitiesCtrl = new Controllers.Account.IdentitiesController()
+            //{
+            //    SessionToken = Authorization.SystemAuthorizationToken,
+            //};
+            //foreach (var session in LoginSessions.Where(s => s.IdentityId == identityId))
+            //{
+            //    var identity = await identitiesCtrl.GetValidIdentityByIdAsync(identityId).ConfigureAwait(false);
 
-                if (identity != null)
-                {
-                    session.Identity = identity;
-                    session.Roles.Clear();
-                    session.Roles.AddRange(identity.IdentityXRoles.Select(e => e.Role!));
-                    session.JsonWebToken = JsonWebToken.GenerateToken(new Claim[]
-                    {
-                        new(ClaimTypes.Email, identity.Email),
-                        new(ClaimTypes.System, nameof(SETemplate)),
-                    }.Union(session.Roles.Select(e => new Claim(ClaimTypes.Role, e.Designation))));
-                }
-            }
+            //    if (identity != null)
+            //    {
+            //        session.Identity = identity;
+            //        session.Roles.Clear();
+            //        session.Roles.AddRange(identity.IdentityXRoles.Select(e => e.Role!));
+            //        session.JsonWebToken = JsonWebToken.GenerateToken(new Claim[]
+            //        {
+            //            new(ClaimTypes.Email, identity.Email),
+            //            new(ClaimTypes.System, nameof(SETemplate)),
+            //        }.Union(session.Roles.Select(e => new Claim(ClaimTypes.Role, e.Designation))));
+            //    }
+            //}
+#else
+            await Task.Delay(1000);
+#endif
         }
         static partial void AfterQueryLoginByEmail(Identity identity, LoginSession session);
-        #endregion Internal logon
+#endregion Internal logon
 
         #region Update thread
         /// <summary>
@@ -765,64 +746,66 @@ namespace SETemplate.Logic.Modules.Account
                 {
                     try
                     {
-                        using var sessionsCtrl = new Controllers.Account.LoginSessionsController()
-                        {
-                            SessionToken = Authorization.SystemAuthorizationToken,
-                        };
-                        var saveChanges = false;
-                        var dbSessions = await sessionsCtrl.QueryOpenLoginSessionsAsync().ConfigureAwait(false);
-                        var uncheckSessions = LoginSessions.Where(i => dbSessions.Length == 0
-                                                                    || dbSessions.Any(e => e.Id != i.Id));
+#if GENERATEDCODE_ON
+                        //using var sessionsCtrl = new Controllers.Account.LoginSessionsController()
+                        //{
+                        //    SessionToken = Authorization.SystemAuthorizationToken,
+                        //};
+                        //var saveChanges = false;
+                        //var dbSessions = await sessionsCtrl.QueryOpenLoginSessionsAsync().ConfigureAwait(false);
+                        //var uncheckSessions = LoginSessions.Where(i => dbSessions.Length == 0
+                        //                                            || dbSessions.Any(e => e.Id != i.Id));
 
-                        foreach (var dbSession in dbSessions)
-                        {
-                            var dbUpdate = false;
-                            var memSessionRemove = false;
-                            var memSession = LoginSessions.FirstOrDefault(e => e.Id == dbSession.Id);
+                        //foreach (var dbSession in dbSessions)
+                        //{
+                        //    var dbUpdate = false;
+                        //    var memSessionRemove = false;
+                        //    var memSession = LoginSessions.FirstOrDefault(e => e.Id == dbSession.Id);
 
-                            if (memSession != null && dbSession.LastAccess != memSession.LastAccess)
-                            {
-                                dbUpdate = true;
-                                dbSession.LastAccess = memSession.LastAccess;
-                            }
-                            if (dbSession.IsTimeout)
-                            {
-                                dbUpdate = true;
-                                if (memSession != null)
-                                {
-                                    memSessionRemove = true;
-                                }
-                                if (dbSession.LogoutTime.HasValue == false)
-                                {
-                                    dbSession.LogoutTime = DateTime.UtcNow;
-                                }
-                            }
-                            if (dbUpdate)
-                            {
-                                saveChanges = true;
-                                await sessionsCtrl.UpdateAsync(dbSession).ConfigureAwait(false);
-                            }
-                            if (memSessionRemove && memSession != null)
-                            {
-                                LoginSessions.Remove(memSession);
-                            }
-                        }
-                        if (saveChanges)
-                        {
-                            await sessionsCtrl.SaveChangesAsync().ConfigureAwait(false);
-                        }
-                        foreach (var memItem in uncheckSessions)
-                        {
-                            var dbSession = await sessionsCtrl.EntitySet
-                                                              .FirstOrDefaultAsync(e => e.Id == memItem.Id)
-                                                              .ConfigureAwait(false);
+                        //    if (memSession != null && dbSession.LastAccess != memSession.LastAccess)
+                        //    {
+                        //        dbUpdate = true;
+                        //        dbSession.LastAccess = memSession.LastAccess;
+                        //    }
+                        //    if (dbSession.IsTimeout)
+                        //    {
+                        //        dbUpdate = true;
+                        //        if (memSession != null)
+                        //        {
+                        //            memSessionRemove = true;
+                        //        }
+                        //        if (dbSession.LogoutTime.HasValue == false)
+                        //        {
+                        //            dbSession.LogoutTime = DateTime.UtcNow;
+                        //        }
+                        //    }
+                        //    if (dbUpdate)
+                        //    {
+                        //        saveChanges = true;
+                        //        await sessionsCtrl.UpdateAsync(dbSession).ConfigureAwait(false);
+                        //    }
+                        //    if (memSessionRemove && memSession != null)
+                        //    {
+                        //        LoginSessions.Remove(memSession);
+                        //    }
+                        //}
+                        //if (saveChanges)
+                        //{
+                        //    await sessionsCtrl.SaveChangesAsync().ConfigureAwait(false);
+                        //}
+                        //foreach (var memItem in uncheckSessions)
+                        //{
+                        //    var dbSession = await sessionsCtrl.EntitySet
+                        //                                      .FirstOrDefaultAsync(e => e.Id == memItem.Id)
+                        //                                      .ConfigureAwait(false);
 
-                            if (dbSession != null)
-                            {
-                                memItem.LastAccess = dbSession.LastAccess;
-                                memItem.LogoutTime = dbSession.LogoutTime;
-                            }
-                        }
+                        //    if (dbSession != null)
+                        //    {
+                        //        memItem.LastAccess = dbSession.LastAccess;
+                        //        memItem.LogoutTime = dbSession.LogoutTime;
+                        //    }
+                        //}
+#endif
                     }
                     catch (Exception ex)
                     {
@@ -833,7 +816,7 @@ namespace SETemplate.Logic.Modules.Account
                 }
             });
         }
-        #endregion Update thread
+#endregion Update thread
 
         #region Helpers
         /// <summary>
@@ -940,16 +923,27 @@ namespace SETemplate.Logic.Modules.Account
         /// <returns>Mailadresse ist gültig</returns>
         public static bool CheckMailAddressSyntax(string mailAddress)
         {
-            //return Regex.IsMatch(mailAddress, @"^([\w-\.]+){2,}@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$");
-            ////@"^(?("")("".+?""@)|(([0-9a-zA-Z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-zA-Z])@))" +
-            ////@"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-zA-Z][-\w]*[0-9a-zA-Z]\.)+[a-zA-Z]{2,6}))$");
-#pragma warning disable SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
-            return Regex.IsMatch(mailAddress, @"\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*");
-#pragma warning restore SYSLIB1045 // Convert to 'GeneratedRegexAttribute'.
-                                  //return Regex.IsMatch(mailAddress, @"^\w{2,}@[a-zA-Z]{3,}\.[a-zA-Z]{2,}$");
+            return IsValidEmail(mailAddress);
+        }
+
+        /// <summary>
+        /// Checks if the provided email is valid.
+        /// </summary>
+        /// <param name="email">The email to validate.</param>
+        /// <returns>True if the email is valid, otherwise false.</returns>
+        public static bool IsValidEmail(string email)
+        {
+            var result = false;
+
+            if (string.IsNullOrWhiteSpace(email) == false)
+            {
+                string pattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+
+                result = Regex.IsMatch(email, pattern);
+            }
+            return result;
         }
         #endregion Helpers
     }
 }
 #endif
-//MdEnd
