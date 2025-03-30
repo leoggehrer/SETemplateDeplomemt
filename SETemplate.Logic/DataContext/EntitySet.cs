@@ -9,11 +9,11 @@ namespace SETemplate.Logic.DataContext
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <param name="context">The database context.</param>
     /// <param name="dbSet">The set of entities.</param>
-    public abstract partial class EntitySet<TEntity>(DbContext context, DbSet<TEntity> dbSet) : IEntitySet<TEntity>, IDisposable
+    internal abstract partial class EntitySet<TEntity>(ProjectDbContext context, DbSet<TEntity> dbSet) : IEntitySet<TEntity>, IDisposable
         where TEntity : Entities.EntityObject, new()
     {
         #region fields
-        private DbContext? _context = context;
+        private ProjectDbContext? _context = context;
         private DbSet<TEntity>? _dbSet = dbSet;
         #endregion fields
 
@@ -21,7 +21,7 @@ namespace SETemplate.Logic.DataContext
         /// <summary>
         /// Gets the database context.
         /// </summary>
-        internal DbContext Context => _context!;
+        internal ProjectDbContext Context => _context!;
         /// <summary>
         /// Gets the database context.
         /// </summary>

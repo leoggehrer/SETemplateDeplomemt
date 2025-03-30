@@ -3,7 +3,6 @@
 using SETemplate.Logic.Entities.Account;
 using SETemplate.Logic.Modules.Exceptions;
 using SETemplate.Logic.Modules.Security;
-using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -647,6 +646,7 @@ namespace SETemplate.Logic.Modules.Account
                                     ?? throw new AuthorizationException(Error.InvalidEntitySet);
                     var loginSession = new LoginSession
                     {
+                        SessionToken = $"{Guid.NewGuid()}-{Guid.NewGuid()}",
                         IdentityId = identity.Id,
                         Name = identity.Name,
                         Email = identity.Email,

@@ -165,76 +165,15 @@ namespace SETemplate.Logic
         /// <exception cref="Modules.Exceptions.LogicException">Thrown when the provided ID is invalid.</exception>
         public static async Task<Identity> GetIdentityByAsync(string sessionToken, IdType id)
         {
-            throw new NotImplementedException();
-            //using var ctrl = new Controllers.Account.IdentitiesController() { SessionToken = sessionToken };
-            //var entity = await ctrl.GetByIdAsync(id).ConfigureAwait(false);
-            
-            //return entity != null ? Identity.Create(entity) : throw new Modules.Exceptions.LogicException(CommonModules.Exceptions.ErrorType.InvalidId);
-        }
-        /// <summary>
-        /// Retrieves an array of identities asynchronously using the specified session token.
-        /// </summary>
-        /// <param name="sessionToken">The session token used for authentication.</param>
-        /// <returns>An array of Identity objects.</returns>
-        /// <remarks>
-        /// This method retrieves a collection of identities from the IdentitiesController by initializing the controller with the provided session token.
-        /// It then asynchronously calls the GetAllAsync method to retrieve all entities from the controller.
-        /// The retrieved entities are then used to create Identity objects which are stored in an array before being returned.
-        /// </remarks>
-        public static async Task<Identity[]> GetIdentitiesAsync(string sessionToken)
-        {
-            throw new NotImplementedException();
-            //using var ctrl = new Controllers.Account.IdentitiesController() { SessionToken = sessionToken };
-            //var entities = await ctrl.GetAllAsync().ConfigureAwait(false);
+#if GENERATEDCODE_ON
+            using var context = new DataContext.ProjectDbContext(sessionToken);
+            var identitySet = context.IdentitySet as DataContext.Account.IdentitySet;
+            var result = await identitySet!.GetByIdAsync(id).ConfigureAwait(false);
 
-            //return entities.Select(e => Identity.Create(e)).ToArray();
-        }
-        /// <summary>
-        /// Updates an identity asynchronously.
-        /// </summary>
-        /// <param name="sessionToken">The session token used for authorization.</param>
-        /// <param name="id">The ID of the identity to update.</param>
-        /// <param name="identity">The new identity data to update.</param>
-        /// <returns>The updated identity.</returns>
-        /// <exception cref="Modules.Exceptions.LogicException">Thrown when the provided ID is invalid.</exception>
-        public static async Task<Identity> UpdateIdentityAsync(string sessionToken, IdType id, Identity identity)
-        {
-            throw new NotImplementedException();
-            //using var ctrl = new Controllers.Account.IdentitiesController() { SessionToken = sessionToken };
-            //var entity = await ctrl.GetByIdAsync(id).ConfigureAwait(false);
-            
-            //if (entity == null)
-            //{
-            //    throw new Modules.Exceptions.LogicException(CommonModules.Exceptions.ErrorType.InvalidId);
-            //}
-            
-            //entity.CopyFrom(identity, n => n.Equals("Guid", StringComparison.InvariantCultureIgnoreCase) == false);
-            //entity = await ctrl.UpdateAsync(entity).ConfigureAwait(false);
-            //await ctrl.SaveChangesAsync().ConfigureAwait(false);
-            
-            //identity.CopyFrom(entity);
-            //return identity;
-        }
-        /// <summary>
-        /// Deletes an identity asynchronously.
-        /// </summary>
-        /// <param name="sessionToken">The session token for authentication.</param>
-        /// <param name="id">The ID of the identity to be deleted.</param>
-        /// <returns>A task that represents the asynchronous delete operation.</returns>
-        /// <exception cref="Modules.Exceptions.LogicException">Thrown when the provided ID is invalid.</exception>
-        public static async Task DeleteIdentityAsync(string sessionToken, IdType id)
-        {
-            throw new NotImplementedException();
-            //using var ctrl = new Controllers.Account.IdentitiesController() { SessionToken = sessionToken };
-            //var entity = await ctrl.GetByIdAsync(id).ConfigureAwait(false);
-            
-            //if (entity == null)
-            //{
-            //    throw new Modules.Exceptions.LogicException(CommonModules.Exceptions.ErrorType.InvalidId);
-            //}
-            
-            //await ctrl.DeleteAsync(id).ConfigureAwait(false);
-            //await ctrl.SaveChangesAsync().ConfigureAwait(false);
+            return result != null ? Identity.CloneFrom(result) : throw new Modules.Exceptions.LogicException(CommonModules.Exceptions.ErrorType.InvalidId);
+#else
+            return Task.FromResult<Identity>(null).Result;
+#endif
         }
     }
 }

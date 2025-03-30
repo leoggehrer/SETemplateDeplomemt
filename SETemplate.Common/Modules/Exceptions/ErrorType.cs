@@ -46,12 +46,6 @@ namespace SETemplate.Common.Modules.Exceptions
         public const int InvalidEntityUpdate = 230;
         public const int InvalidEntityContent = 240;
         
-        public const int InvalidControllerType = 250;
-        public const int InvalidControllerObject = 260;
-        
-        public const int InvalidFacadeType = 270;
-        public const int InvalidFacadeObject = 280;
-        
         public const int InvalidOperation = 290;
         public const int EmailWasNotSent = 300;
         public const int InvalidConfirmation = 310;

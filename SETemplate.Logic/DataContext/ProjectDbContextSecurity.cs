@@ -21,6 +21,16 @@ namespace SETemplate.Logic.DataContext
             }
         }
         #endregion properties
+
+        #region constructors
+        public ProjectDbContext(string sessionToken)
+        {
+            SessionToken = sessionToken;
+            Constructing();
+
+            Constructed();
+        }
+        #endregion constructors
     }
 }
 #endif

@@ -1,4 +1,5 @@
 ﻿//@BaseCode
+using SETemplate.Common.Modules.Exceptions;
 using SETemplate.Logic.Contracts;
 
 namespace SETemplate.Logic.DataContext
@@ -73,6 +74,9 @@ namespace SETemplate.Logic.DataContext
         /// This method is called when the object is constructed.
         /// </summary>
         partial void Constructed();
+        #endregion constructors
+
+        #region methods
         /// <summary>
         /// Saves all changes made in this context to the underlying database.
         /// </summary>
@@ -129,7 +133,12 @@ namespace SETemplate.Logic.DataContext
             return result ?? Set<E>();
         }
 
-        internal EntitySet<E>? GetEntitySet<E>() where E : Entities.EntityObject, new()
+        /// <summary>
+        /// Determines the domain project EntitySet depending on the type E
+        /// </summary>
+        /// <typeparam name="E">The entity type E</typeparam>
+        /// <returns>The EntitySet depending on the type E</returns>
+        internal EntitySet<E> GetEntitySet<E>() where E : Entities.EntityObject, new()
         {
             var handled = false;
             var result = default(EntitySet<E>);
@@ -139,7 +148,7 @@ namespace SETemplate.Logic.DataContext
             {
                 GetGeneratorEntitySet(ref result, ref handled);
             }
-            return result;
+            return result ?? throw new Modules.Exceptions.LogicException(ErrorType.InvalidEntitySet);  
         }
         #endregion methods
 
