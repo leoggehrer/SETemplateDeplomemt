@@ -122,6 +122,15 @@ namespace SETemplate.Logic.DataContext
         }
 
         /// <summary>
+        /// Adds a range of entities to the set.
+        /// </summary>
+        /// <param name="entities">The entities to add.</param>
+        public virtual void AddRange(IEnumerable<TEntity> entities)
+        {
+            ExecuteAddRange(entities);
+        }
+
+        /// <summary>
         /// Asynchronously adds the specified entity to the set.
         /// </summary>
         /// <param name="entity">The entity to add.</param>
@@ -129,6 +138,16 @@ namespace SETemplate.Logic.DataContext
         public virtual Task<TEntity> AddAsync(TEntity entity)
         {
             return ExecuteAddAsync(entity);
+        }
+
+        /// <summary>
+        /// Asynchronously adds a range of entities to the set.
+        /// </summary>
+        /// <param name="entities">The entities to add.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
+        public virtual Task AddRangeAsync(IEnumerable<TEntity> entities)
+        {
+            return ExecuteAddRangeAsync(entities);
         }
 
         /// <summary>

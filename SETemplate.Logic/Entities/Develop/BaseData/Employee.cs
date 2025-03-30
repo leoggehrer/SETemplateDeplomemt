@@ -16,7 +16,7 @@ namespace SETemplate.Logic.Entities.Develop.BaseData
         /// <summary>
         /// Gets or sets the company ID.
         /// </summary>
-        public int CompanyId { get; set; }
+        public IdType CompanyId { get; set; }
 
         /// <summary>
         /// Gets or sets the first name of the employee.

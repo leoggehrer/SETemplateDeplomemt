@@ -56,9 +56,20 @@ namespace SETemplate.ConApp
 #endif
         }
 
+        static void AfterInitDatabase()
+        {
+#if ACCOUNT_ON
+            CreateAccounts();
+#endif
+            ImportData();
+        }
+
         #region partial methods
         static partial void BeforeInitDatabase();
-        static partial void AfterInitDatabase();
+#if ACCOUNT_ON
+        static partial void CreateAccounts();
+#endif
+        static partial void ImportData();
         static partial void CreateMenu(ref int index);
         static partial void ExecuteMenuItem(int choice, Logic.Contracts.IContext context);
         #endregion partial methods

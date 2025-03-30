@@ -1,9 +1,9 @@
 ﻿//@Ignore
-using Azure.Identity;
+#if DEVELOP_ON && GENERATEDCODE_ON
 using SETemplate.Logic.Entities.Develop;
 using SETemplate.Logic.Entities.Develop.BaseData;
 
-namespace SETemplate.Logic.DataContext
+namespace SETemplate.ConApp
 {
     /// <summary>
     /// Provides methods to load data from CSV files.
@@ -46,7 +46,7 @@ namespace SETemplate.Logic.DataContext
                        .Select(l => l.Split(';'))
                        .Select(d => new Customer
                        {
-                           CompanyId = Convert.ToInt32(d[0]),
+                           CompanyId = (IdType)Convert.ChangeType(d[0], typeof(IdType)),
                            Name = d[1],
                            Email = d[2],
                        }));
@@ -67,7 +67,7 @@ namespace SETemplate.Logic.DataContext
                        .Select(l => l.Split(';'))
                        .Select(d => new Employee
                        {
-                           CompanyId = Convert.ToInt32(d[0]),
+                           CompanyId = (IdType)Convert.ChangeType(d[0], typeof(IdType)),
                            FirstName = d[1],
                            LastName = d[2],
                            Email = d[3],
@@ -77,3 +77,4 @@ namespace SETemplate.Logic.DataContext
         #endregion methods
     }
 }
+#endif

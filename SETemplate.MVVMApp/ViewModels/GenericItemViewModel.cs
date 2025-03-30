@@ -48,7 +48,7 @@ namespace SETemplate.MVVMApp.ViewModels
 
             try
             {
-                if (Model.Id == 0)
+                if (Model.Id == default)
                 {
                     var response = httpClient.PostAsync(RequestUri, new StringContent(JsonSerializer.Serialize(Model), Encoding.UTF8, "application/json")).Result;
 
