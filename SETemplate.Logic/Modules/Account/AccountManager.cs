@@ -67,12 +67,16 @@ namespace SETemplate.Logic.Modules.Account
         /// <exception cref="Exception">Thrown when an unexpected exception occurs.</exception>
         internal static async Task InitAppAccessAsync(string name, string email, string password)
         {
+            email = email.RemoveLeftAndRight(' ').ToLower();
+            if (IsValidEmail(email) == false)
+                throw new AuthorizationException(Error.InvalidEmailSyntax);
+
             if (CheckPasswordSyntax(password) == false)
                 throw new AuthorizationException(Error.InvalidPasswordSyntax, PasswordRules.SyntaxRoles);
 
 #if GENERATEDCODE_ON
             using var context = new DataContext.ProjectDbContext();
-            var identitySet = context.IdentitySet as DataContext.Account.IdentitySet 
+            var identitySet = context.IdentitySet as DataContext.Account.IdentitySet
                             ?? throw new AuthorizationException(Error.InvalidEntitySet);
             var secureIdentitySet = context.SecureIdentitySet as DataContext.Account.SecureIdentitySet
                             ?? throw new AuthorizationException(Error.InvalidEntitySet);
@@ -143,6 +147,10 @@ namespace SETemplate.Logic.Modules.Account
         internal static async Task AddAppAccessAsync(string sessionToken, string name, string email, string password, int timeOutInMinutes, params string[] roles)
         {
             await Authorization.CheckAuthorizationAsync(sessionToken, MethodBase.GetCurrentMethod()!.GetAsyncOriginal(), nameof(AddAppAccessAsync)).ConfigureAwait(false);
+
+            email = email.RemoveLeftAndRight(' ').ToLower();
+            if (IsValidEmail(email) == false)
+                throw new AuthorizationException(Error.InvalidEmailSyntax);
 
             if (CheckPasswordSyntax(password) == false)
                 throw new AuthorizationException(Error.InvalidPasswordSyntax, PasswordRules.SyntaxRoles);
@@ -244,9 +252,10 @@ namespace SETemplate.Logic.Modules.Account
         /// <exception cref="AuthorizationException">Thrown when the account is invalid.</exception>
         internal static async Task<LoginSession> LogonAsync(string email, string password, string optionalInfo)
         {
-            var result = await QueryLoginByEmailAsync(email, password, optionalInfo).ConfigureAwait(false);
+            email = email.RemoveLeftAndRight(' ').ToLower();
 
-            return result ?? throw new AuthorizationException(Error.InvalidAccount);
+            return await QueryLoginByEmailAsync(email, password, optionalInfo).ConfigureAwait(false) 
+                ?? throw new AuthorizationException(Error.InvalidAccount);
         }
         /// <summary>
         /// Logs out a user with the specified session token.
@@ -448,7 +457,7 @@ namespace SETemplate.Logic.Modules.Account
                                                   .FirstOrDefaultAsync(e => e.State == CommonEnums.State.Active
                                                                          && e.AccessFailedCount < 4
                                                                          && e.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase))
-                                                  .ConfigureAwait(false) 
+                                                  .ConfigureAwait(false)
                             ?? throw new AuthorizationException(Error.InvalidAccount);
             var (Hash, Salt) = CreatePasswordHash(newPassword);
 
@@ -488,7 +497,7 @@ namespace SETemplate.Logic.Modules.Account
             var identity = await identitySet.ExecuteAsQuerySet()
                                             .FirstOrDefaultAsync(e => e.State == CommonEnums.State.Active
                                                                    && e.Email.Equals(email, StringComparison.CurrentCultureIgnoreCase))
-                                            .ConfigureAwait(false) 
+                                            .ConfigureAwait(false)
                             ?? throw new AuthorizationException(Error.InvalidAccount);
 
             identity.AccessFailedCount = 0;
@@ -510,8 +519,7 @@ namespace SETemplate.Logic.Modules.Account
         /// </returns>
         internal static LoginSession? QueryLoginSession(string sessionToken)
         {
-            return LoginSessions.FirstOrDefault(ls => ls.IsActive
-            && ls.SessionToken.Equals(sessionToken));
+            return LoginSessions.FirstOrDefault(ls => ls.IsActive && ls.SessionToken.Equals(sessionToken));
         }
         /// <summary>
         /// Queries the alive session based on the given session token.
@@ -681,7 +689,7 @@ namespace SETemplate.Logic.Modules.Account
 #endif
         }
         static partial void AfterQueryLoginByEmail(Identity identity, LoginSession session);
-#endregion Internal logon
+        #endregion Internal logon
 
         #region Update thread
         /// <summary>
@@ -775,7 +783,7 @@ namespace SETemplate.Logic.Modules.Account
                 }
             });
         }
-#endregion Update thread
+        #endregion Update thread
 
         #region Helpers
         /// <summary>

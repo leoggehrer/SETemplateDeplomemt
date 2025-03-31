@@ -1,6 +1,7 @@
 ﻿//@BaseCode
 using SETemplate.Common.Modules.Exceptions;
 using SETemplate.Logic.Contracts;
+using System.Reflection;
 
 namespace SETemplate.Logic.DataContext
 {
@@ -14,7 +15,6 @@ namespace SETemplate.Logic.DataContext
         /// The type of the database (e.g., "Sqlite", "SqlServer").
         /// </summary>
         private static readonly string DatabaseType = "Sqlite";
-
         /// <summary>
         /// The connection string for the database.
         /// </summary>
@@ -83,6 +83,8 @@ namespace SETemplate.Logic.DataContext
         /// <returns>The number of state entries written to the underlying database.</returns>
         public override int SaveChanges()
         {
+            BeforeAccessing(MethodBase.GetCurrentMethod()!);
+
             return ExecuteSaveChanges();
         }
 
@@ -92,6 +94,8 @@ namespace SETemplate.Logic.DataContext
         /// <returns>A task that represents the asynchronous save operation. The task result contains the number of state entries written to the underlying database.</returns>
         public Task<int> SaveChangesAsync()
         {
+            BeforeAccessing(MethodBase.GetCurrentMethod()!.GetAsyncOriginal());
+
             return ExecuteSaveChangesAsync();
         }
         /// <summary>
@@ -153,6 +157,12 @@ namespace SETemplate.Logic.DataContext
         #endregion methods
 
         #region partial methods
+        /// <summary>
+        /// This method is called before accessing a method.
+        /// </summary>
+        /// <param name="methodBase">The method being accessed.</param>
+        partial void BeforeAccessing(MethodBase methodBase);
+
         /// <summary>
         /// Determines the domain project DbSet depending on the type E
         /// </summary>

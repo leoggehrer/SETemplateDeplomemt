@@ -79,9 +79,8 @@ namespace SETemplate.ConApp
                 await Logic.AccountAccess.InitAppAccessAsync(SaUser, SaEmail, SaPwd);
                 await AddAppAccessAsync(SaEmail, SaPwd, AaUser, AaEmail, AaPwd, 30, AaRole);
                 await AddAppAccessAsync(SaEmail, SaPwd, AppUser, AppEmail, AppPwd, 35, AppRole);
-                await AddAppAccessAsync(SaEmail, SaPwd, AppUser + "2", AppEmail + "2", AppPwd, 35, AppRole);
+                await AddAppAccessAsync(SaEmail, SaPwd, "g.gehrer", "   g.gehrer@htl-leonding.ac.at ", AppPwd, 35, AppRole);
             }).Wait();
-
         }
     }
 }

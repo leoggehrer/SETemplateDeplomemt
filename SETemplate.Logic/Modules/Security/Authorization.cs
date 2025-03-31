@@ -1,5 +1,4 @@
 //@BaseCode
-
 #if ACCOUNT_ON
 using SETemplate.Logic.Entities.Account;
 using SETemplate.Logic.Modules.Exceptions;
@@ -15,16 +14,24 @@ namespace SETemplate.Logic.Modules.Security
     /// </summary>
     internal static partial class Authorization
     {
+        #region properties
+        /// <summary>
+        /// Gets or sets the default time-out value in minutes.
+        /// </summary>
+        internal static int DefaultTimeOutInMinutes { get; private set; } = 90;
+        /// <summary>
+        /// Gets the default timeout value in seconds.
+        /// </summary>
+        internal static int DefaultTimeOutInSeconds => DefaultTimeOutInMinutes * 60;
+        #endregion properties
+
+        #region class constructor
         /// <summary>
         /// Represents a class that handles authorization logic.
         /// </summary>
         static Authorization()
         {
             ClassConstructing();
-            if (string.IsNullOrEmpty(SystemAuthorizationToken))
-            {
-                SystemAuthorizationToken = Guid.NewGuid().ToString();
-            }
             ClassConstructed();
         }
         /// <summary>
@@ -37,19 +44,7 @@ namespace SETemplate.Logic.Modules.Security
         /// It is a partial method, which means it can be implemented in a partial class or a partial struct.
         /// </summary>
         static partial void ClassConstructed();
-
-        /// <summary>
-        /// Gets or sets the default time-out value in minutes.
-        /// </summary>
-        internal static int DefaultTimeOutInMinutes { get; private set; } = 90;
-        /// <summary>
-        /// Gets the default timeout value in seconds.
-        /// </summary>
-        internal static int DefaultTimeOutInSeconds => DefaultTimeOutInMinutes * 60;
-        /// <summary>
-        /// Gets or sets the system authorization token.
-        /// </summary>
-        internal static string SystemAuthorizationToken { get; set; }
+        #endregion class constructor
 
         #region Check authorization for type
         /// <summary>
@@ -274,7 +269,7 @@ namespace SETemplate.Logic.Modules.Security
                     throw new AuthorizationException(ErrorType.NotLogedIn);
                 }
             }
-            else if (sessionToken.Equals(SystemAuthorizationToken) == false)
+            else
             {
                 var curSession = await AccountManager.QueryAliveSessionAsync(sessionToken).ConfigureAwait(false);
 
@@ -293,9 +288,9 @@ namespace SETemplate.Logic.Modules.Security
         /// <summary>
         /// Determines whether authorization is required for the specified subject type.
         /// </summary>
-        /// <param name="subjectType">The type of the subject.</param>
+        /// <param name="type">The type of the subject.</param>
         /// <returns><c>true</c> if authorization is required; otherwise, <c>false</c>.</returns>
-        private static bool IsAuthorizedRequired(Type subjectType)
+        internal static bool IsAuthorizedRequired(Type type)
         {
             static AuthorizeAttribute? GetClassAuthorization(Type classType)
             {
@@ -309,8 +304,7 @@ namespace SETemplate.Logic.Modules.Security
                 } while (result == null && runType != null);
                 return result;
             }
-            var authorization = GetClassAuthorization(subjectType)
-                              ?? throw new AuthorizationException(ErrorType.MissingAuthorizeAttribute);
+            var authorization = GetClassAuthorization(type);
 
             return authorization != null && authorization.Required;
         }
@@ -369,7 +363,7 @@ namespace SETemplate.Logic.Modules.Security
                     throw new AuthorizationException(ErrorType.NotLogedIn);
                 }
             }
-            else if (sessionToken.Equals(SystemAuthorizationToken) == false)
+            else
             {
                 var curSession = await AccountManager.QueryAliveSessionAsync(sessionToken).ConfigureAwait(false);
 
@@ -390,13 +384,14 @@ namespace SETemplate.Logic.Modules.Security
         /// </summary>
         /// <param name="methodBase">The method to check for authorization.</param>
         /// <returns><c>true</c> if authorization is required; otherwise, <c>false</c>.</returns>
-        private static bool IsAuthorizedRequired(MethodBase methodBase)
+        internal static bool IsAuthorizedRequired(MethodBase methodBase)
         {
             var authorization = methodBase.GetCustomAttributes<AuthorizeAttribute>().FirstOrDefault()
                               ?? throw new AuthorizationException(ErrorType.MissingAuthorizeAttribute);
 
             return authorization?.Required ?? false;
         }
+
         /// <summary>
         /// Determines whether the specified method is authorized for the given login session and roles.
         /// </summary>

@@ -14,7 +14,8 @@ namespace SETemplate.Common.Modules.Exceptions
         public const int InvalidAccount = 20;
         public const int InvalidIdentityName = 30;
         public const int InvalidPasswordSyntax = 40;
-        
+        public const int InvalidEmailSyntax = 45;
+
         public const int InvalidToken = 50;
         public const int InvalidSessionToken = 60;
         public const int InvalidJsonWebToken = 70;

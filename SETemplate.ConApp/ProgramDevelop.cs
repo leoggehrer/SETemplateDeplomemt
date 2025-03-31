@@ -77,7 +77,7 @@ namespace SETemplate.ConApp
             Console.WriteLine("Companies:");
             Console.WriteLine("----------");
 
-            foreach (var company in context.CompanySet.AsQuerySet().AsNoTracking().Include(e => e.Customers))
+            foreach (var company in context.CompanySet.AsNoTrackingSet().Include(e => e.Customers))
             {
                 Console.WriteLine($"{company}");
                 foreach (var customer in company.Customers ?? [])
