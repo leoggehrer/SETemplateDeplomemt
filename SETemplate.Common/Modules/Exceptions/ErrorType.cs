@@ -6,8 +6,8 @@ namespace SETemplate.Common.Modules.Exceptions
     /// </summary>
     public static partial class ErrorType
     {
-#if ACCOUNT_ON
         public const int InvalidEntitySet = 1;
+#if ACCOUNT_ON
 
         public const int InitAppAccess = 10;
         public const int AddAppAccess = 11;
@@ -38,8 +38,7 @@ namespace SETemplate.Common.Modules.Exceptions
         public const int AccessRuleViolationCanNotDeleted = 190;
 #endif
 #endif
-        
-#pragma warning disable CA2211 // Non-constant fields should not be visible
+
         public const int InvalidId = 200;
         public const int InvalidPageSize = 210;
         
@@ -50,7 +49,6 @@ namespace SETemplate.Common.Modules.Exceptions
         public const int InvalidOperation = 290;
         public const int EmailWasNotSent = 300;
         public const int InvalidConfirmation = 310;
-#pragma warning restore CA2211 // Non-constant fields should not be visible
     }
 }
 

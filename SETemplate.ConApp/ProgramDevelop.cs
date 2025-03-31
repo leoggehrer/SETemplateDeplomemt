@@ -414,7 +414,7 @@ namespace SETemplate.ConApp
         static partial void ImportData()
         {
             var path = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)!;
-            var context = Logic.DataContext.Factory.CreateContext();
+            using var context = CreateContext();
 
             var companies = DataLoader.LoadCompaniesFromCsv(Path.Combine(path, "Data", "companies.csv"));
 

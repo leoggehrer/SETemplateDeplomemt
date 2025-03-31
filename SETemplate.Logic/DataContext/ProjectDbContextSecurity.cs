@@ -44,6 +44,21 @@ namespace SETemplate.Logic.DataContext
             BeforeAccessingHandler(methodBase, ref handled);
             if (handled == false)
             {
+                var methodAuthorize = Authorization.GetAuthorizeAttribute(methodBase);
+
+                if (methodAuthorize != null && methodAuthorize.Required)
+                {
+                    Authorization.CheckAuthorization(SessionToken, methodBase);
+                }
+                else
+                {
+                    var typeAuthorize = Authorization.GetAuthorizeAttribute(methodBase.DeclaringType!);
+
+                    if (typeAuthorize != null && typeAuthorize.Required)
+                    {
+                        Authorization.CheckAuthorization(SessionToken, methodBase.DeclaringType!);
+                    }
+                }
                 System.Diagnostics.Debug.WriteLine($"Before accessing {methodBase.Name}");
             }
         }

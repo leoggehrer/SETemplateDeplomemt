@@ -24,17 +24,35 @@ namespace SETemplate.Logic.DataContext
         {
             bool handled = false;
 
-            BeforeAccessingHandler(methodBase, ref handled);
+            handled = BeforeAccessingHandler(methodBase);
             if (handled == false)
             {
+                var methodAuthorize = Authorization.GetAuthorizeAttribute(methodBase);
+
+                if (methodAuthorize != null && methodAuthorize.Required)
+                {
+                    Authorization.CheckAuthorization(SessionToken, methodBase);
+                }
+                else
+                {
+                    var typeAuthorize = Authorization.GetAuthorizeAttribute(methodBase.DeclaringType!);
+
+                    if (typeAuthorize != null && typeAuthorize.Required)
+                    {
+                        Authorization.CheckAuthorization(SessionToken, methodBase.DeclaringType!);
+                    }
+                }
                 System.Diagnostics.Debug.WriteLine($"Before accessing {methodBase.Name}");
             }
         }
         #endregion methods
 
-        #region partial methods
-        partial void BeforeAccessingHandler(MethodBase methodBase, ref bool handled);
-        #endregion partial methods
+        #region customize accessing
+        protected virtual bool BeforeAccessingHandler(MethodBase methodBase)
+        {
+            return false;
+        }
+        #endregion customize accessing
     }
 }
 #endif

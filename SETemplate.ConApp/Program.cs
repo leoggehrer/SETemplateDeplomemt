@@ -9,7 +9,7 @@ namespace SETemplate.ConApp
         static void Main(/*string[] args*/)
         {
             string input = string.Empty;
-            using Logic.Contracts.IContext context = Logic.DataContext.Factory.CreateContext();
+            using Logic.Contracts.IContext context = CreateContext();
 
             while (!input.Equals("x", StringComparison.CurrentCultureIgnoreCase))
             {
@@ -45,6 +45,25 @@ namespace SETemplate.ConApp
                     }
                 }
             }
+        }
+
+        private static Logic.Contracts.IContext CreateContext()
+        {
+
+#if ACCOUNT_ON
+            Logic.Contracts.IContext? result = null;
+
+            Task.Run(async() =>
+            {
+                var login = await Logic.AccountAccess.LogonAsync(AaEmail, AaPwd, string.Empty);
+                
+                result = Logic.DataContext.Factory.CreateContext(login.SessionToken);
+            }).Wait();
+
+            return result ?? Logic.DataContext.Factory.CreateContext();
+#else
+            return Logic.DataContext.Factory.CreateContext();
+#endif
         }
 
         public static void InitDatabase()

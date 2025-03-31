@@ -146,7 +146,7 @@ namespace SETemplate.Logic.Modules.Account
         [Authorize("SysAdmin", "AppAdmin")]
         internal static async Task AddAppAccessAsync(string sessionToken, string name, string email, string password, int timeOutInMinutes, params string[] roles)
         {
-            await Authorization.CheckAuthorizationAsync(sessionToken, MethodBase.GetCurrentMethod()!.GetAsyncOriginal(), nameof(AddAppAccessAsync)).ConfigureAwait(false);
+            Authorization.CheckAuthorization(sessionToken, MethodBase.GetCurrentMethod()!.GetAsyncOriginal(), roles);
 
             email = email.RemoveLeftAndRight(' ').ToLower();
             if (IsValidEmail(email) == false)
@@ -271,7 +271,8 @@ namespace SETemplate.Logic.Modules.Account
         [Authorize]
         internal static async Task LogoutAsync(string sessionToken)
         {
-            await Authorization.CheckAuthorizationAsync(sessionToken, MethodBase.GetCurrentMethod()!.GetAsyncOriginal(), nameof(LogoutAsync)).ConfigureAwait(false);
+            Authorization.CheckAuthorization(sessionToken, MethodBase.GetCurrentMethod()!.GetAsyncOriginal());
+
 #if GENERATEDCODE_ON
             try
             {
@@ -342,7 +343,7 @@ namespace SETemplate.Logic.Modules.Account
         [Authorize]
         internal static async Task<IEnumerable<string>> QueryRolesAsync(string sessionToken)
         {
-            await Authorization.CheckAuthorizationAsync(sessionToken, MethodBase.GetCurrentMethod()!.GetAsyncOriginal(), nameof(QueryRolesAsync)).ConfigureAwait(false);
+            Authorization.CheckAuthorization(sessionToken, MethodBase.GetCurrentMethod()!.GetAsyncOriginal());
 
             var loginSession = await QueryAliveSessionAsync(sessionToken).ConfigureAwait(false);
 
@@ -357,7 +358,7 @@ namespace SETemplate.Logic.Modules.Account
         [Authorize]
         internal static async Task<bool> HasRoleAsync(string sessionToken, string role)
         {
-            await Authorization.CheckAuthorizationAsync(sessionToken, MethodBase.GetCurrentMethod()!.GetAsyncOriginal(), nameof(HasRoleAsync)).ConfigureAwait(false);
+            Authorization.CheckAuthorization(sessionToken, MethodBase.GetCurrentMethod()!.GetAsyncOriginal());
 
             var loginSession = await QueryAliveSessionAsync(sessionToken).ConfigureAwait(false);
 
@@ -369,11 +370,11 @@ namespace SETemplate.Logic.Modules.Account
         /// <param name="sessionToken">The session token.</param>
         /// <returns>The login session if found; otherwise, null.</returns>
         [Authorize]
-        internal static async Task<LoginSession?> QueryLoginAsync(string sessionToken)
+        internal static Task<LoginSession?> QueryLoginAsync(string sessionToken)
         {
-            await Authorization.CheckAuthorizationAsync(sessionToken, MethodBase.GetCurrentMethod()!.GetAsyncOriginal(), nameof(QueryLoginAsync)).ConfigureAwait(false);
+            Authorization.CheckAuthorization(sessionToken, MethodBase.GetCurrentMethod()!.GetAsyncOriginal());
 
-            return await QueryAliveSessionAsync(sessionToken).ConfigureAwait(false);
+            return QueryAliveSessionAsync(sessionToken);
         }
         #endregion Query logon data
 
@@ -389,7 +390,7 @@ namespace SETemplate.Logic.Modules.Account
         [Authorize]
         internal static async Task ChangePasswordAsync(string sessionToken, string oldPassword, string newPassword)
         {
-            await Authorization.CheckAuthorizationAsync(sessionToken, MethodBase.GetCurrentMethod()!.GetAsyncOriginal(), nameof(ChangePasswordAsync)).ConfigureAwait(false);
+            Authorization.CheckAuthorization(sessionToken, MethodBase.GetCurrentMethod()!.GetAsyncOriginal());
 
             if (CheckPasswordSyntax(newPassword) == false)
                 throw new AuthorizationException(Error.InvalidPasswordSyntax, PasswordRules.SyntaxRoles);
@@ -439,7 +440,7 @@ namespace SETemplate.Logic.Modules.Account
         [Authorize("SysAdmin", "AppAdmin")]
         internal static async Task ChangePasswordForAsync(string sessionToken, string email, string newPassword)
         {
-            await Authorization.CheckAuthorizationAsync(sessionToken, MethodBase.GetCurrentMethod()!.GetAsyncOriginal(), nameof(ChangePasswordForAsync)).ConfigureAwait(false);
+            Authorization.CheckAuthorization(sessionToken, MethodBase.GetCurrentMethod()!.GetAsyncOriginal());
 
             if (CheckPasswordSyntax(newPassword) == false)
                 throw new AuthorizationException(Error.InvalidPasswordSyntax, PasswordRules.SyntaxRoles);
@@ -486,7 +487,7 @@ namespace SETemplate.Logic.Modules.Account
         [Authorize("SysAdmin", "AppAdmin")]
         internal static async Task ResetFailedCountForAsync(string sessionToken, string email)
         {
-            await Authorization.CheckAuthorizationAsync(sessionToken, MethodBase.GetCurrentMethod()!.GetAsyncOriginal(), nameof(ResetFailedCountForAsync)).ConfigureAwait(false);
+            Authorization.CheckAuthorization(sessionToken, MethodBase.GetCurrentMethod()!.GetAsyncOriginal());
 
             var login = await QueryAliveSessionAsync(sessionToken).ConfigureAwait(false)
                       ?? throw new AuthorizationException(Error.InvalidToken);
