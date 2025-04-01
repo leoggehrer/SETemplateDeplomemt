@@ -1,5 +1,4 @@
 //@BaseCode
-
 namespace TemplateTools.ConApp.Modules
 {
     using SETemplate.Common.Extensions;

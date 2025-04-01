@@ -21,8 +21,9 @@ namespace TemplateTools.Logic.Common
         MVVMAppModel,
         MVVMAppEditModel,
         MVVVMAppItemViewModel,
+        MVVVMAppItemsViewModel,
         #endregion models
-        
+
         #region properties
         Property,
         ModelProperty,
