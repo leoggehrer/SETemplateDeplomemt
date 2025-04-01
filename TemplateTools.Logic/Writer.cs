@@ -203,7 +203,7 @@ namespace TemplateTools.Logic
                 var projectPath = Path.Combine(solutionPath, solutionProperties.MVVMAppProjectName);
                 if (Directory.Exists(projectPath))
                 {
-                    var writeItems = generatedItems.Where(e => e.UnitType == UnitType.MVVMApp && e.ItemType == ItemType.MVVVMAppViewModel);
+                    var writeItems = generatedItems.Where(e => e.UnitType == UnitType.MVVMApp && e.ItemType == ItemType.MVVVMAppItemViewModel);
 
                     WriteLogging("Write MVVM-ViewModels...");
                     WriteItems(projectPath, writeItems, false);

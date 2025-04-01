@@ -45,7 +45,7 @@ namespace TemplateTools.Logic.Generation
         public MVVMGenerator(ISolutionProperties solutionProperties) : base(solutionProperties)
         {
             GenerateModels = QuerySetting<bool>(ItemType.MVVMAppModel, StaticLiterals.AllItems, StaticLiterals.Generate, "True");
-            GenerateViewModels = QuerySetting<bool>(ItemType.MVVVMAppViewModel, StaticLiterals.AllItems, StaticLiterals.Generate, "True");
+            GenerateViewModels = QuerySetting<bool>(ItemType.MVVVMAppItemViewModel, StaticLiterals.AllItems, StaticLiterals.Generate, "True");
         }
 
         #region generation
@@ -58,7 +58,7 @@ namespace TemplateTools.Logic.Generation
             var result = new List<IGeneratedItem>();
 
             result.AddRange(CreateModels());
-            result.AddRange(CreateMVVMViewModels());
+            result.AddRange(CreateViewModels());
             return result;
         }
         /// <summary>
@@ -125,7 +125,7 @@ namespace TemplateTools.Logic.Generation
         /// Creates view models for entity types.
         /// </summary>
         /// <returns>An enumerable collection of generated items.</returns>
-        private List<IGeneratedItem> CreateMVVMViewModels()
+        private List<IGeneratedItem> CreateViewModels()
         {
             var result = new List<IGeneratedItem>();
             var entityProject = EntityProject.Create(SolutionProperties);
@@ -134,7 +134,7 @@ namespace TemplateTools.Logic.Generation
             {
                 if (CanCreate(type) && QuerySetting<bool>(ItemType.Controller, type, StaticLiterals.Generate, GenerateViewModels.ToString()))
                 {
-                    result.Add(CreateMVVMViewModelFromType(type, UnitType.MVVMApp, ItemType.MVVVMAppViewModel));
+                    result.Add(CreateViewModelFromType(type, UnitType.MVVMApp, ItemType.MVVVMAppItemViewModel));
                 }
             }
             return result;
@@ -146,7 +146,7 @@ namespace TemplateTools.Logic.Generation
         /// <param name="unitType">The unit type.</param>
         /// <param name="itemType">The item type.</param>
         /// <returns>An instance of the IGeneratedItem interface representing the created controller.</returns>
-        private GeneratedItem CreateMVVMViewModelFromType(Type type, UnitType unitType, ItemType itemType)
+        private GeneratedItem CreateViewModelFromType(Type type, UnitType unitType, ItemType itemType)
         {
             var modelType = ItemProperties.CreateModelSubType(type);
             var viewModelName = ItemProperties.CreateViewModelName(type);
