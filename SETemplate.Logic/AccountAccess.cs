@@ -172,7 +172,7 @@ namespace SETemplate.Logic
 
             return result != null ? Identity.CloneFrom(result) : throw new Modules.Exceptions.LogicException(CommonModules.Exceptions.ErrorType.InvalidId);
 #else
-            return Task.FromResult<Identity>(null).Result;
+            return await Task.FromResult<Identity>(new Identity()).ConfigureAwait(false);
 #endif
         }
     }
