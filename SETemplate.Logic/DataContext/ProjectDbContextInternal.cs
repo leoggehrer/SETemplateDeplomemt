@@ -13,11 +13,11 @@ namespace SETemplate.Logic.DataContext
         {
             // Vor dem Speichern alle Entitäten validieren
             var entries = ChangeTracker.Entries()
-                .Where(e => e.Entity is IValidatable && (e.State == EntityState.Added || e.State == EntityState.Modified));
+                .Where(e => e.Entity is IValidatableEntity && (e.State == EntityState.Added || e.State == EntityState.Modified));
 
             foreach (var entry in entries)
             {
-                var validatableEntity = (IValidatable)entry.Entity;
+                var validatableEntity = (IValidatableEntity)entry.Entity;
 
                 validatableEntity.Validate(this);
             }
@@ -33,11 +33,11 @@ namespace SETemplate.Logic.DataContext
         {
             // Vor dem Speichern alle Entitäten validieren
             var entries = ChangeTracker.Entries()
-                .Where(e => e.Entity is IValidatable && (e.State == EntityState.Added || e.State == EntityState.Modified));
+                .Where(e => e.Entity is IValidatableEntity && (e.State == EntityState.Added || e.State == EntityState.Modified));
 
             foreach (var entry in entries)
             {
-                var validatableEntity = (IValidatable)entry.Entity;
+                var validatableEntity = (IValidatableEntity)entry.Entity;
 
                 validatableEntity.Validate(this);
             }
