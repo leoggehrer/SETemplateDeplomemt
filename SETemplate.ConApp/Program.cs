@@ -62,6 +62,7 @@ namespace SETemplate.ConApp
                     var login = await Logic.AccountAccess.LogonAsync(AaEmail, AaPwd, string.Empty);
 
                     result = Logic.DataContext.Factory.CreateContext(login.SessionToken);
+                    return result;
                 }).Wait();
             }
             catch (Exception ex)
