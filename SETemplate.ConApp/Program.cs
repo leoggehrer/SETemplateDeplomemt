@@ -1,4 +1,6 @@
 ﻿//@BaseCode
+using System.Reflection;
+
 namespace SETemplate.ConApp
 {
     internal partial class Program
@@ -53,12 +55,19 @@ namespace SETemplate.ConApp
 #if ACCOUNT_ON
             Logic.Contracts.IContext? result = null;
 
-            Task.Run(async() =>
+            try
             {
-                var login = await Logic.AccountAccess.LogonAsync(AaEmail, AaPwd, string.Empty);
-                
-                result = Logic.DataContext.Factory.CreateContext(login.SessionToken);
-            }).Wait();
+                Task.Run(async () =>
+                {
+                    var login = await Logic.AccountAccess.LogonAsync(AaEmail, AaPwd, string.Empty);
+
+                    result = Logic.DataContext.Factory.CreateContext(login.SessionToken);
+                }).Wait();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in {MethodBase.GetCurrentMethod()!.Name}: {ex.Message}");
+            }
 
             return result ?? Logic.DataContext.Factory.CreateContext();
 #else

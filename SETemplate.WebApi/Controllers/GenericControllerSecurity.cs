@@ -1,9 +1,24 @@
 ﻿//@BaseCode
 #if ACCOUNT_ON
+using SETemplate.WebApi.Contracts;
+
 namespace SETemplate.WebApi.Controllers
 {
+//    [TypeFilter(typeof(ActionFilterSecurity))]
     partial class GenericController<TModel, TEntity, TContract>
     {
+        #region fields
+        private string? _sessionToken;
+        #endregion fields
+
+        #region properties
+        protected string SessionToken
+        {
+            get => _sessionToken ??= GetSessionToken();
+            set => _sessionToken = value;
+        }
+        #endregion properties
+
         #region methods
         /// <summary>
         /// Retrieves the session token from the header.
@@ -68,6 +83,13 @@ namespace SETemplate.WebApi.Controllers
             return result;
         }
         #endregion methods
+
+        #region partial methods
+        partial void OnReadContextAccessor(IContextAccessor contextAccessor)
+        {
+            contextAccessor.SessionToken = SessionToken;
+        }
+        #endregion partial methods
     }
 }
 #endif

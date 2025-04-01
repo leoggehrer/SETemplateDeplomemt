@@ -6,6 +6,7 @@ namespace SETemplate.Logic.Contracts
     /// </summary>
     public partial interface IContext : IDisposable
     {
+        #region methods
         /// <summary>
         /// Saves all changes made in this context to the underlying database.
         /// </summary>
@@ -17,5 +18,6 @@ namespace SETemplate.Logic.Contracts
         /// </summary>
         /// <returns>A task that represents the asynchronous save operation. The task result contains the number of state entries written to the underlying database.</returns>
         Task<int> SaveChangesAsync();
+        #endregion methods
     }
 }

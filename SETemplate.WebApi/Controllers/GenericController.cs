@@ -21,6 +21,10 @@ namespace SETemplate.WebApi.Controllers
         where TModel : Models.ModelObject, TContract, new()
         where TEntity : Logic.Entities.EntityObject, TContract, new()
     {
+        #region fields
+        private readonly IContextAccessor _contextAccessor;
+        #endregion fields
+
         #region properties
         /// <summary>
         /// Gets the max count.
@@ -29,7 +33,16 @@ namespace SETemplate.WebApi.Controllers
         /// <summary>
         /// Gets the context accessor.
         /// </summary>
-        protected IContextAccessor ContextAccessor { get; }
+        protected IContextAccessor ContextAccessor
+        {
+            get
+            {
+                OnReadContextAccessor(_contextAccessor);
+                return _contextAccessor;
+            }
+        }
+        partial void OnReadContextAccessor(IContextAccessor contextAccessor);
+
         /// <summary>
         /// Gets the context.
         /// </summary>
@@ -50,7 +63,7 @@ namespace SETemplate.WebApi.Controllers
         {
             Constructing();
             BeforeSetContextAccessor(contextAccessor);
-            ContextAccessor = contextAccessor;
+            _contextAccessor = contextAccessor;
             AfterSetContextAccessor(ContextAccessor);
             Constructed();
         }
@@ -98,6 +111,8 @@ namespace SETemplate.WebApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public virtual ActionResult<IEnumerable<TModel>> Get()
         {
+            var authHeader = HttpContext.Request.Headers.Authorization;
+
             var query = QuerySet.AsNoTracking().Take(MaxCount).ToArray();
             var result = query.Select(e => ToModel(e));
 

@@ -22,7 +22,7 @@ namespace SETemplate.Logic.DataContext
         #region methods
         partial void BeforeAccessing(MethodBase methodBase)
         {
-            bool handled = false;
+            bool handled;
 
             handled = BeforeAccessingHandler(methodBase);
             if (handled == false)
