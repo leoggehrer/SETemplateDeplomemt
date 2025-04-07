@@ -120,7 +120,7 @@ namespace SETemplate.MVVMApp.ViewModels
 
             if (messageDialog.Result == MessageResult.Yes)
             {
-                using var httpClient = new HttpClient { BaseAddress = new Uri(API_BASE_URL) };
+                using var httpClient = CreateHttpClient();
 
 
                 var response = await httpClient.DeleteAsync($"{RequestUri}/{model.Id}");
@@ -164,7 +164,7 @@ namespace SETemplate.MVVMApp.ViewModels
         {
             try
             {
-                using var httpClient = new HttpClient { BaseAddress = new Uri(API_BASE_URL) };
+                using var httpClient = CreateHttpClient();
                 var response = await httpClient.GetStringAsync(RequestUri);
                 var models = JsonSerializer.Deserialize<List<TModel>>(response, _jsonSerializerOptions);
 

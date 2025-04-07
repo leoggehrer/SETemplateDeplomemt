@@ -1,6 +1,5 @@
 //@BaseCode
-#if ACCOUNT_ON
-namespace SETemplate.Logic.Models.Account
+namespace SETemplate.MVVMApp.Models.Account
 {
     /// <summary>
     /// Represents a role model.
@@ -45,29 +44,11 @@ namespace SETemplate.Logic.Models.Account
         /// <summary>
         /// Gets or sets the Designation property.
         /// </summary>
-        public string Designation { get; internal set; } = string.Empty;
+        public string Designation { get; set; } = string.Empty;
         /// <summary>
         /// Gets or sets the description.
         /// </summary>
         /// <value>The description.</value>
-        public string? Description { get; internal set; } = string.Empty;
-
-        /// <summary>
-        /// Clones a Role entity to a Role model.
-        /// </summary>
-        /// <param name="entity">The Role entity to clone from.</param>
-        /// <returns>A new Role model with values copied from the entity.</returns>
-        internal static Role CloneFrom(Entities.Account.Role entity)
-        {
-            entity.CheckArgument(nameof(entity));
-
-            return new Role
-            {
-                Id = entity.Id,
-                Designation = entity.Designation,
-                Description = entity.Description
-            };
-        }
+        public string? Description { get; set; } = string.Empty;
     }
 }
-#endif

@@ -1,5 +1,4 @@
 //@BaseCode
-//MdStart
 namespace SETemplate.Common.Modules.ThreadSafe
 {
     using System.Collections;
@@ -214,4 +213,3 @@ namespace SETemplate.Common.Modules.ThreadSafe
         }
     }
 }
-//MdEnd

@@ -1,5 +1,4 @@
 //@BaseCode
-//MdStart
 #if ACCOUNT_ON
 namespace SETemplate.WebApi.Models.Account
 {
@@ -32,4 +31,3 @@ namespace SETemplate.WebApi.Models.Account
     }
 }
 #endif
-//MdEnd

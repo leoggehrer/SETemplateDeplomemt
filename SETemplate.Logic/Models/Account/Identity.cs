@@ -1,5 +1,4 @@
 //@BaseCode
-//MdStart
 #if ACCOUNT_ON
 namespace SETemplate.Logic.Models.Account
 {
@@ -84,4 +83,3 @@ namespace SETemplate.Logic.Models.Account
     }
 }
 #endif
-//MdEnd
