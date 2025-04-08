@@ -273,13 +273,14 @@ namespace SEBookStore.Logic.Entities
 }
 ```
 
-> **Entwicklungsrichtlinien:** 
+> **Erstellungsrichtlinien:** 
 >* Erstellen Sie alle Entitäten als `partial`-Klassen.
->* Geben Sie den Tabellenname als Klassen-Attribut an.
->* Erstellen Sie alle Eigenschaften und deren Einschränkungen.
->* Geben Sie alle Index-Einschränkungen als Klassen-Attribute an.
+>* Leiten Sie die Entität von `EntityObject` ab.
+>* Geben Sie den Tabellenname als Klassen-Attribut `[Table("...")]` an.
+>* Erstellen Sie alle Eigenschaften und deren Einschränkungen `[MaxLength(10)]`.
+>* Geben Sie alle Index-Einschränkungen als Klassen-Attribute `[Index(..., IsUnique = true)]` an.
 
-### Erstellung der Validierung für die Entität 'Book'
+### Erstellung der Validierungen für die Entität 'Book'
 
 Im nächsten Schritt implementieren Sie die Geschäftsregeln für die Entität-'Book':
  
@@ -293,7 +294,7 @@ namespace SEBookStore.Logic.Entities
     {
         public void Validate(IContext context)
         {
-            if (CheckISBNNumer(ISBNNumber) == false)
+            if (CheckISBNNumber(ISBNNumber) == false)
             {
                 throw new BusinessException("Invalid ISBN number");
             }
@@ -319,7 +320,7 @@ namespace SEBookStore.Logic.Entities
             }
         }
 
-        public static bool CheckISBNNumer(string number)
+        public static bool CheckISBNNumber(string number)
         {
             var result = number != null && number.Where((c, i) => i == 9 ? (c == 'X' || c == 'x' || char.IsDigit(c)) : char.IsDigit(c)).Count() == 10;
             var sum = 0;
@@ -337,9 +338,10 @@ namespace SEBookStore.Logic.Entities
 }
 ```
 
-> **Entwicklungsrichtlinien:** 
+> **Erstellungsrichtlinien:** 
 >* Erstellen Sie eine `partial`-Klassen und implementieren Sie die Schnittstelle `IValidatableEntity`.
 >* Vergeben Sie für die Klasse den Dateinamen 'BookValidation'.
+>* Implementieren Sie die Methode `Validate(IContext context)`.
 
 ---
 

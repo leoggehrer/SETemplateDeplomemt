@@ -104,7 +104,7 @@ namespace TemplateTools.Logic
         public static string AngularExtension => CommonStaticLiterals.AngularExtension;
         #endregion Project Extensions
 
-        #region items
+        #region Items
         public static readonly string EntityObjectName = "EntityObject";
         public static readonly string EntitySetName = "EntitySet";
         public static readonly string ContextAccessor = "ContextAccessor";
@@ -116,7 +116,7 @@ namespace TemplateTools.Logic
         public static readonly string EntitySetContractName = "IEntitySet";
 
         public static readonly string GlobalUsingIdentifiableName = "CommonContracts.IIdentifiable";
-        #endregion items
+        #endregion Items
 
         #region Entity properties
         public static readonly string IdentityProperty = "Id";
