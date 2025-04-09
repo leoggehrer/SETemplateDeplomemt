@@ -143,8 +143,7 @@ namespace TemplateTools.Logic.Generation
         /// </remarks>
         public IEnumerable<Type> EntityTypes => AllEntityTypes.Where(t => t.FullName!.Contains($"{StaticLiterals.EntitiesFolder}.{StaticLiterals.AccountFolder}.") == false
                                                                        && t.FullName!.Contains($"{StaticLiterals.EntitiesFolder}.{StaticLiterals.LoggingFolder}.") == false
-                                                                       && t.FullName!.Contains($"{StaticLiterals.EntitiesFolder}.{StaticLiterals.LoggingFolder}.") == false
-                                                                       && t.Name.Equals(StaticLiterals.EntityObjectName) == false);
+                                                                       && t.FullName!.Contains($"{StaticLiterals.EntitiesFolder}.{StaticLiterals.LoggingFolder}.") == false);
 
         /// <summary>
         /// Determines if the specified <paramref name="type"/> is an account entity.

@@ -10,7 +10,7 @@ namespace SETemplate.Logic.Entities.Develop
     /// </summary>
     [Table("Companies")]
     [Index(nameof(Name), IsUnique = true)]
-    public partial class Company : EntityObject
+    public partial class Company : VersionEntityObject
     {
         #region properties
         /// <summary>

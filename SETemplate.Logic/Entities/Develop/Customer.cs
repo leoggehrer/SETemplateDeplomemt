@@ -7,7 +7,7 @@ namespace SETemplate.Logic.Entities.Develop
     [Table("Customers")]
     [Index(nameof(Name), IsUnique = true)]
     [Index(nameof(Email), IsUnique = true)]
-    public partial class Customer : EntityObject
+    public partial class Customer : VersionEntityObject
     {
         #region properties
         /// <summary>

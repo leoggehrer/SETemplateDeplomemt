@@ -10,7 +10,7 @@ namespace SETemplate.Logic.Entities.Develop.BaseData
     /// </summary>
     [Table("Employees")]
     [Index(nameof(Email), IsUnique = true)]
-    public partial class Employee : EntityObject
+    public partial class Employee : VersionEntityObject
     {
         #region properties
         /// <summary>

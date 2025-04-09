@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿//@BaseCode
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
@@ -8,14 +9,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace SETemplate.MVVMApp.ViewModels
 {
     public abstract partial class GenericItemsViewModel<TModel> : ViewModelBase
-        where TModel : Models.ModelObject, new()
+        where TModel : CommonModels.ModelObject, new()
     {
         #region fields
         private string _filter = string.Empty;
