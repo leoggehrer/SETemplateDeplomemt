@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <DefineConstants>ACCOUNT_ON;ACCESSRULES_OFF;LOGGING_OFF;REVISION_OFF;ROWVERSION_ON;GUID_OFF;CREATED_OFF;MODIFIED_OFF;CREATEDBY_OFF;MODIFIEDBY_OFF;IDINT_OFF;IDLONG_ON;IDGUID_OFF;POSTGRES_OFF;SQLSERVER_ON;SQLITE_OFF;DOCKER_OFF;DEVELOP_ON;DBOPERATION_OFF;GENERATEDCODE_OFF</DefineConstants>
+    <DefineConstants>ACCOUNT_OFF;ACCESSRULES_OFF;LOGGING_OFF;REVISION_OFF;ROWVERSION_OFF;GUID_OFF;CREATED_OFF;MODIFIED_OFF;CREATEDBY_OFF;MODIFIEDBY_OFF;IDINT_ON;IDLONG_OFF;IDGUID_OFF;POSTGRES_ON;SQLSERVER_OFF;SQLITE_OFF;DOCKER_OFF;DEVELOP_ON;DBOPERATION_ON;GENERATEDCODE_OFF</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,7 +23,7 @@
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.1" />
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     <PackageReference Include="Avalonia.Diagnostics" Version="11.2.1">
-      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">All</IncludeAssets>
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
