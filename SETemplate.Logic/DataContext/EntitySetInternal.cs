@@ -3,6 +3,40 @@ namespace SETemplate.Logic.DataContext
 {
     partial class EntitySet<TEntity>
     {
+        #region overridables
+        /// <summary>
+        /// Copies properties from the source entity to the target entity.
+        /// </summary>
+        /// <param name="target">The target entity.</param>
+        /// <param name="source">The source entity.</param>
+        protected abstract void CopyProperties(TEntity target, TEntity source);
+
+        /// <summary>
+        /// Performs actions before create an entity.
+        /// </summary>
+        /// <param name="entity">The entity to be added.</param>
+        protected virtual TEntity? BeforeExecuteCreating() { return default; }
+        protected virtual void AfterExecuteCreated(TEntity entity) { }
+
+        /// <summary>
+        /// Performs actions before adding an entity.
+        /// </summary>
+        /// <param name="entity">The entity to be added.</param>
+        protected virtual void BeforeExecuteAdding(TEntity entity) { }
+
+        /// <summary>
+        /// Performs actions before updating an entity.
+        /// </summary>
+        /// <param name="entity">The entity to be updated.</param>
+        protected virtual void BeforeExecuteUpdating(TEntity entity) { }
+
+        /// <summary>
+        /// Performs actions before removing an entity.
+        /// </summary>
+        /// <param name="entity">The entity to be removed.</param>
+        protected virtual void BeforeExecuteRemoving(TEntity entity) { }
+        #endregion overridables
+
         #region methods
         /// <summary>
         /// Creates a new instance of the entity.
@@ -10,7 +44,14 @@ namespace SETemplate.Logic.DataContext
         /// <returns>A new instance of the entity.</returns>
         internal virtual TEntity ExecuteCreate()
         {
-            return new TEntity();
+            var result = BeforeExecuteCreating();
+
+            if (result == default)
+            {
+                result = new TEntity();
+            }
+            AfterExecuteCreated(result);
+            return result;
         }
 
         /// <summary>
@@ -60,7 +101,7 @@ namespace SETemplate.Logic.DataContext
         /// <returns>The added entity.</returns>
         internal virtual TEntity ExecuteAdd(TEntity entity)
         {
-            BeforeAdding(entity);
+            BeforeExecuteAdding(entity);
             return DbSet.Add(entity).Entity;
         }
 
@@ -70,6 +111,7 @@ namespace SETemplate.Logic.DataContext
         /// <param name="entities">The entities to add.</param>
         internal virtual void ExecuteAddRange(IEnumerable<TEntity> entities)
         {
+            entities.ForEach(e => BeforeExecuteAdding(e));
             DbSet.AddRange(entities);
         }
 
@@ -80,7 +122,7 @@ namespace SETemplate.Logic.DataContext
         /// <returns>A task that represents the asynchronous operation. The task result contains the added entity.</returns>
         internal virtual async Task<TEntity> ExecuteAddAsync(TEntity entity)
         {
-            BeforeAdding(entity);
+            BeforeExecuteAdding(entity);
             var result = await DbSet.AddAsync(entity).ConfigureAwait(false);
 
             return result.Entity;
@@ -93,9 +135,14 @@ namespace SETemplate.Logic.DataContext
         /// <returns>A task that represents the asynchronous operation.</returns>
         internal virtual async Task ExecuteAddRangeAsync(IEnumerable<TEntity> entities)
         {
+            entities.ForEach(e => BeforeExecuteAdding(e));
             await DbSet.AddRangeAsync(entities).ConfigureAwait(false);
         }
 
+        internal virtual TEntity? ExecuteUpdate(TEntity entity)
+        {
+            return ExecuteUpdate(entity.Id, entity);
+        }
         /// <summary>
         /// Updates the specified entity in the set.
         /// </summary>
@@ -104,7 +151,7 @@ namespace SETemplate.Logic.DataContext
         /// <returns>The updated entity, or null if the entity was not found.</returns>
         internal virtual TEntity? ExecuteUpdate(IdType id, TEntity entity)
         {
-            BeforeUpdating(entity);
+            BeforeExecuteUpdating(entity);
 
             var existingEntity = DbSet.Find(id);
             if (existingEntity != null)
@@ -114,6 +161,10 @@ namespace SETemplate.Logic.DataContext
             return existingEntity;
         }
 
+        internal virtual Task<TEntity?> ExecuteUpdateAsync(TEntity entity)
+        {
+            return ExecuteUpdateAsync(entity.Id, entity);
+        }
         /// <summary>
         /// Asynchronously updates the specified entity in the set.
         /// </summary>
@@ -122,7 +173,7 @@ namespace SETemplate.Logic.DataContext
         /// <returns>A task that represents the asynchronous operation. The task result contains the updated entity, or null if the entity was not found.</returns>
         internal virtual async Task<TEntity?> ExecuteUpdateAsync(IdType id, TEntity entity)
         {
-            BeforeUpdating(entity);
+            BeforeExecuteUpdating(entity);
 
             var existingEntity = await DbSet.FindAsync(id).ConfigureAwait(false);
             if (existingEntity != null)
@@ -143,11 +194,22 @@ namespace SETemplate.Logic.DataContext
 
             if (entity != null)
             {
-                BeforeRemoving(entity);
+                BeforeExecuteRemoving(entity);
                 DbSet.Remove(entity);
             }
             return entity;
         }
         #endregion methods
+
+        #region context methods
+        internal virtual int ExecuteSaveChanges()
+        {
+            return Context.ExecuteSaveChanges();
+        }
+        internal virtual Task<int> ExecuteSaveChangesAsync()
+        {
+            return Context.ExecuteSaveChangesAsync();
+        }
+        #endregion context methods
     }
 }
