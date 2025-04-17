@@ -12,20 +12,20 @@ namespace SETemplate.ConApp
             public int Index { get; set; }
             public Action<Logic.Contracts.IContext> Action { get; set; }
         }
-        private static List<MenuItem> _menuItems = [];
+        private static readonly List<MenuItem> _menuItems = [];
         /// <summary>
         /// Creates the menu with available actions.
         /// </summary>
         /// <param name="index">The starting index for the menu items.</param>
         static partial void CreateMenu(ref int index)
         {
-            Action<Logic.Contracts.IContext, Action<Logic.Contracts.IContext>> action = (ctx, subAction) =>
+            static void action(Logic.Contracts.IContext ctx, Action<Logic.Contracts.IContext> subAction)
             {
                 subAction(ctx);
                 Console.WriteLine();
                 Console.Write("Continue with Enter...");
                 Console.ReadLine();
-            };
+            }
 
             _menuItems.Add(new MenuItem { Index = index, Action = (ctx) => action(ctx, PrintCompanyies) });
             Console.WriteLine($"{nameof(PrintCompanyies),-25}....{index++}");

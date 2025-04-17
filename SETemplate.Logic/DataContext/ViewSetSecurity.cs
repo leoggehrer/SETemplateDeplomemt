@@ -6,10 +6,10 @@ using System.Reflection;
 namespace SETemplate.Logic.DataContext
 {
     /// <summary>
-    /// Represents a secure entity set with authorization checks.
+    /// Represents a view set with security features.
     /// </summary>
     [Authorize]
-    partial class EntitySet<TEntity>
+    partial class ViewSet<TView>
     {
         #region properties
         /// <summary>

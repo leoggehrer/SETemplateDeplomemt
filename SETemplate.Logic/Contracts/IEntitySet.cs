@@ -40,13 +40,6 @@ namespace SETemplate.Logic.Contracts
         IQueryable<TEntity> AsNoTrackingSet();
 
         /// <summary>
-        /// Returns the element of type T with the identification of id.
-        /// </summary>
-        /// <param name = "id">The identification.</param>
-        /// <returns>The element of the type T with the corresponding identification.</returns>
-        ValueTask<TEntity?> GetByIdAsync(IdType id);
-
-        /// <summary>
         /// Adds a new entity to the set.
         /// </summary>
         /// <param name="entity">The entity to add.</param>
@@ -72,29 +65,6 @@ namespace SETemplate.Logic.Contracts
         /// <param name="entities">The entities to add.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
         Task AddRangeAsync(IEnumerable<TEntity> entities);
-
-        /// <summary>
-        /// Updates an entity in the set by its identifier.
-        /// </summary>
-        /// <param name="id">The identifier of the entity to update.</param>
-        /// <param name="entity">The updated entity.</param>
-        /// <returns>The updated entity, or null if the entity was not found.</returns>
-        TEntity? Update(IdType id, TEntity entity);
-
-        /// <summary>
-        /// Asynchronously updates an entity in the set by its identifier.
-        /// </summary>
-        /// <param name="id">The identifier of the entity to update.</param>
-        /// <param name="entity">The updated entity.</param>
-        /// <returns>A task that represents the asynchronous operation. The task result contains the updated entity, or null if the entity was not found.</returns>
-        Task<TEntity?> UpdateAsync(IdType id, TEntity entity);
-
-        /// <summary>
-        /// Removes an entity from the set by its identifier.
-        /// </summary>
-        /// <param name="id">The identifier of the entity to remove.</param>
-        /// <returns>The removed entity, or null if the entity was not found.</returns>
-        TEntity? Remove(IdType id);
 
         /// <summary>
         /// Disposes the entity set.

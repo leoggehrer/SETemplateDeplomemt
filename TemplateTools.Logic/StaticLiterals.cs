@@ -108,6 +108,9 @@ namespace TemplateTools.Logic
         public static readonly string EntityObjectName = "EntityObject";
         public static readonly string VersionEntityObjectName = "VersionEntityObject";
         public static readonly string EntitySetName = "EntitySet";
+
+        public static readonly string ViewObjectName = "ViewObject";
+
         public static readonly string ContextAccessor = "ContextAccessor";
         public static readonly string GenericItemViewModel = "GenericItemViewModel";
         public static readonly string GenericItemsViewModel = "GenericItemsViewModel";
