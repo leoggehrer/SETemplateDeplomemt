@@ -27,6 +27,8 @@ namespace SETemplate.ConApp
                 Console.ReadLine();
             }
 
+            _menuItems.Add(new MenuItem { Index = index, Action = (ctx) => action(ctx, PrintCompanyEmployees) });
+            Console.WriteLine($"{nameof(PrintCompanyEmployees),-25}....{index++}");
             _menuItems.Add(new MenuItem { Index = index, Action = (ctx) => action(ctx, PrintCompanyies) });
             Console.WriteLine($"{nameof(PrintCompanyies),-25}....{index++}");
             _menuItems.Add(new MenuItem { Index = index, Action = (ctx) => action(ctx, QueryCompanies) });
@@ -84,6 +86,22 @@ namespace SETemplate.ConApp
                 {
                     Console.WriteLine($"\t{customer}");
                 }
+            }
+        }
+
+        /// <summary>
+        /// Prints all companies in the context.
+        /// </summary>
+        /// <param name="context">The database context.</param>
+        private static void PrintCompanyEmployees(Logic.Contracts.IContext context)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Company -> Employees:");
+            Console.WriteLine("---------------------");
+
+            foreach (var CompanyEmployee in context.CompanyEmployeeSet.AsNoTrackingSet())
+            {
+                Console.WriteLine($"{CompanyEmployee}");
             }
         }
 

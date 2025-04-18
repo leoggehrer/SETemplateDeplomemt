@@ -30,6 +30,37 @@ namespace TemplateTools.Logic
         static partial void ClassConstructed();
         #endregion Class-Constructors
 
+        #region fields
+        public static string[] InfoText =
+        [
+            $"//{StaticLiterals.GeneratedCodeLabel}",
+            "/*****************************************************************************************",
+            "  Please note that this file is regenerated each time it is generated",
+            "  and all your changes will be overwritten in this file.",
+            "  If you still want to make changes, you can do this in 2 ways:",
+            "  ",
+            "  1. Use a 'partial class name' according to the following pattern:",
+            "  ",
+            "  #if GENERATEDCODE_ON",
+            "  namespace_name {",
+            "    partial class ClassName",
+            "    {",
+            "      partial void BeforeExecute(ref bool handled)",
+            "      {",
+            "        //... do something",
+            "        handled = true;",
+            "      }",
+            "    }",
+            "   }",
+            "  #endif",
+            "  ",
+            "  2. Change the label //@GeneratedCode to //@CustomizedCode, for example.",
+            "     Alternatively, you can also remove the label or give it a different name.",
+            "*****************************************************************************************/",
+        ];
+        #endregion fields
+
+
         #region properties
         /// <summary>
         /// Gets or sets the logging console.
@@ -426,7 +457,13 @@ namespace TemplateTools.Logic
                 }
                 else
                 {
-                    sourceLines.Insert(0, $"//{StaticLiterals.GeneratedCodeLabel}");
+                    //                    sourceLines.Insert(0, $"//{StaticLiterals.GeneratedCodeLabel}");
+                    var index = 0;
+
+                    foreach (var info in InfoText)
+                    {
+                        sourceLines.Insert(index++, info);
+                    }
                 }
                 WriteCodeFile(filePath, sourceLines);
             }
@@ -447,7 +484,7 @@ namespace TemplateTools.Logic
             {
                 var lines = File.ReadAllLines(sourceFilePath);
                 var header = lines.FirstOrDefault(l => l.Contains(StaticLiterals.GeneratedCodeLabel)
-                || l.Contains(StaticLiterals.CustomizedAndGeneratedCodeLabel));
+                                                    || l.Contains(StaticLiterals.CustomizedAndGeneratedCodeLabel));
 
                 if (header != null)
                 {
@@ -459,7 +496,7 @@ namespace TemplateTools.Logic
                 }
             }
             else if (string.IsNullOrEmpty(sourcePath) == false
-            && Directory.Exists(sourcePath) == false)
+                     && Directory.Exists(sourcePath) == false)
             {
                 Directory.CreateDirectory(sourcePath);
             }

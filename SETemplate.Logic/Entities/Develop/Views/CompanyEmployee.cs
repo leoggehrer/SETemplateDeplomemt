@@ -15,5 +15,16 @@ namespace SETemplate.Logic.Entities.Develop.Views
         public string LastName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         #endregion properties
+
+        #region methods
+        /// <summary>
+        /// Returns a string representation of the employee.
+        /// </summary>
+        /// <returns>A string representation of the employee.</returns>
+        public override string ToString()
+        {
+            return $"{Name} - {FirstName} {LastName}";
+        }
+        #endregion methods
     }
 }

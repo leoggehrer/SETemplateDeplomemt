@@ -105,6 +105,8 @@ namespace TemplateTools.Logic
         #endregion Project Extensions
 
         #region Items
+        public static readonly string DbObjectName = "DbObject";
+
         public static readonly string EntityObjectName = "EntityObject";
         public static readonly string VersionEntityObjectName = "VersionEntityObject";
         public static readonly string EntitySetName = "EntitySet";

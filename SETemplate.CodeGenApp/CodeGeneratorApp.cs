@@ -196,6 +196,7 @@ namespace SETemplate.CodeGenApp
             IEnumerable<IGeneratedItem>? generatedItems;
 
             PrintHeader();
+            CanProgressBarPrint = false;
             StartProgressBar();
             PrintLine("Generate code...");
 
@@ -204,18 +205,23 @@ namespace SETemplate.CodeGenApp
             {
                 if (Generator.IsEntity(item) == false)
                 {
-                    Console.WriteLine($"Invalid entity type: {item.Name}");
+                    var saveColor = Console.ForegroundColor;
+
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($" + Invalid entity type: {item.Name}");
+                    Console.ForegroundColor = saveColor;
                     invalidEntities++;
                 }
             }
 
             if (invalidEntities > 0)
             {
-                Console.WriteLine($"Invalid entity types: {invalidEntities}");
                 Console.WriteLine("Press any key to continue...");
                 Console.ReadKey();
+                Console.WriteLine();
             }
 
+            CanProgressBarPrint = true;
             Console.WriteLine("Create code items...");
             generatedItems = Generator.Generate(solutionProperties);
 
