@@ -421,11 +421,12 @@ namespace SETemplate.ConApp
             context.CompanySet.AddRange(companies);
             context.SaveChanges();
 
-            var customers = DataLoader.LoadCustomersFromCsv(Path.Combine(path, "Data", "customers.csv"));
+            var customers = DataLoader.LoadCustomersFromCsv(companies, Path.Combine(path, "Data", "customers.csv"));
             
             context.CustomerSet.AddRange(customers);
+            context.SaveChanges();
 
-            var employees = DataLoader.LoadEmployeesFromCsv(Path.Combine(path, "Data", "employees.csv"));
+            var employees = DataLoader.LoadEmployeesFromCsv(companies, Path.Combine(path, "Data", "employees.csv"));
             context.EmployeeSet.AddRange(employees);
 
             context.SaveChanges();

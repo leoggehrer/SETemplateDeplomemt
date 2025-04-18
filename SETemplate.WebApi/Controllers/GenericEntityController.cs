@@ -16,7 +16,7 @@ namespace SETemplate.WebApi.Controllers
     /// <typeparam name="TContract">The type of the interface.</typeparam>
     [Route("api/[controller]")]
     [ApiController]
-    public abstract partial class GenericController<TModel, TEntity, TContract> : ApiControllerBase, IGenericController<TModel, TContract> where TContract : CommonContracts.IIdentifiable
+    public abstract partial class GenericEntityController<TModel, TEntity, TContract> : ApiControllerBase, IGenericController<TModel, TContract> where TContract : CommonContracts.IIdentifiable
         where TModel : CommonModels.ModelObject, TContract, new()
         where TEntity : Logic.Entities.EntityObject, TContract, new()
     {
@@ -55,10 +55,10 @@ namespace SETemplate.WebApi.Controllers
         /// </summary>
         protected virtual IQueryable<TEntity> QuerySet => EntitySet.AsQuerySet();
         /// <summary>
-        /// Initializes a new instance of the <see cref="GenericController{TModel, TEntity, TContract}"/> class.
+        /// Initializes a new instance of the <see cref="GenericEntityController{TModel, TEntity, TContract}"/> class.
         /// </summary>
         /// <param name="contextAccessor">The context accessor.</param>
-        public GenericController(IContextAccessor contextAccessor)
+        public GenericEntityController(IContextAccessor contextAccessor)
         {
             Constructing();
             BeforeSetContextAccessor(contextAccessor);

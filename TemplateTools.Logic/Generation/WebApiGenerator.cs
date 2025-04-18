@@ -53,17 +53,6 @@ namespace TemplateTools.Logic.Generation
 
         #region generation
         /// <summary>
-        ///   Determines whether the specified type should generate default values.
-        /// </summary>
-        /// <param name="type">The type to check.</param>
-        /// <returns>
-        ///   <c>true</c> if the specified type is not a generation entity; otherwise, <c>false</c>.
-        /// </returns>
-        private static bool GetGenerateDefault(Type type)
-        {
-            return EntityProject.IsCustomEntity(type);
-        }
-        /// <summary>
         /// Generates all the required items such as models, controllers, and services.
         /// </summary>
         /// <returns>A collection of generated items.</returns>
@@ -165,7 +154,7 @@ namespace TemplateTools.Logic.Generation
         {
             var visibility = "public";
             var logicProject = $"{ItemProperties.SolutionName}{StaticLiterals.LogicExtension}";
-            var genericType = $"Controllers.GenericController";
+            var genericType = $"Controllers.GenericEntityController";
             var modelType = ItemProperties.CreateModelType(type);
             var entityType = $"{logicProject}.{ItemProperties.GetModuleSubType(type)}";
             var controllerName = ItemProperties.CreateControllerClassName(type);

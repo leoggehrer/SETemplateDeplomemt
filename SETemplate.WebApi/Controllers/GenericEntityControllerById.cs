@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SETemplate.WebApi.Controllers
 {
-    partial class GenericController<TModel, TEntity, TContract>
+    partial class GenericEntityController<TModel, TEntity, TContract>
     {
         /// <summary>
         /// Gets a model by ID.
