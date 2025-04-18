@@ -67,6 +67,13 @@ namespace SETemplate.Logic.Contracts
         Task AddRangeAsync(IEnumerable<TEntity> entities);
 
         /// <summary>
+        /// Removes the specified entity from the set.
+        /// </summary>
+        /// <param name="entity">The entity to remove.</param>
+        /// <returns>The removed entity, or null if the entity was not found.</returns>
+        TEntity? Remove(TEntity entity);
+
+        /// <summary>
         /// Disposes the entity set.
         /// </summary>
         void Dispose();

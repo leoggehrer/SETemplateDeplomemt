@@ -84,7 +84,8 @@ namespace TemplateTools.Logic.Generation
             {
                 var defaultValue = (GenerateEntityContracts && GetGenerateDefault(type)).ToString();
 
-                if (CanCreate(type) && QuerySetting<bool>(Common.ItemType.EntityContract, type, StaticLiterals.Generate, defaultValue))
+                if (CanCreate(type) 
+                    && QuerySetting<bool>(Common.ItemType.EntityContract, type, StaticLiterals.Generate, defaultValue))
                 {
                     result.Add(CreateEntityContract(type, Common.UnitType.Common, Common.ItemType.EntityContract));
                 }

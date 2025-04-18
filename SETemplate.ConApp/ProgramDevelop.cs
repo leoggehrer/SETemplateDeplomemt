@@ -159,7 +159,7 @@ namespace SETemplate.ConApp
             {
                 try
                 {
-                    context.CompanySet.Remove(entity.Id);
+                    context.CompanySet.Remove(entity);
                     context.SaveChanges();
                 }
                 catch (Exception ex)
@@ -278,7 +278,7 @@ namespace SETemplate.ConApp
             {
                 try
                 {
-                    context.CustomerSet.Remove(entity.Id);
+                    context.CustomerSet.Remove(entity);
                     context.SaveChanges();
                 }
                 catch (Exception ex)
@@ -399,7 +399,7 @@ namespace SETemplate.ConApp
             {
                 try
                 {
-                    context.EmployeeSet.Remove(entity.Id);
+                    context.EmployeeSet.Remove(entity);
                     context.SaveChanges();
                 }
                 catch (Exception ex)

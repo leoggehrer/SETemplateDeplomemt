@@ -326,7 +326,7 @@ namespace TemplateTools.Logic.Generation
             }
             else if (baseType != null)
             {
-                result = $"{ItemProperties.CreateContractName(baseType)}";
+                result = $"{CreateContractName(baseType)}";
             }
             else
             {
@@ -669,7 +669,7 @@ namespace TemplateTools.Logic.Generation
         public static bool IsListType(Type type)
         {
             return type.FullName!.StartsWith("System.Collections.Generic.List")
-            || type.FullName!.StartsWith("System.Collections.Generic.IList");
+                || type.FullName!.StartsWith("System.Collections.Generic.IList");
         }
         /// <summary>
         /// Determines whether the given type is an entity type.
@@ -717,6 +717,28 @@ namespace TemplateTools.Logic.Generation
             return result;
         }
         /// <summary>
+        /// Determines whether the specified property is an array of primitive types.
+        /// </summary>
+        /// <param name="propertyInfo">The property information to check.</param>
+        /// <returns>
+        /// <c>true</c> if the property is an array and its element type is a primitive type; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsPrimitiveArrayType(PropertyInfo propertyInfo)
+        {
+            return IsPrimitiveArrayType(propertyInfo.PropertyType);
+        }
+        /// <summary>
+        /// Determines whether the specified type is an array of primitive types.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>
+        /// <c>true</c> if the specified type is an array and its element type is a primitive type; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsPrimitiveArrayType(Type type)
+        {
+            return IsArrayType(type) && type.GetElementType()!.IsPrimitive;
+        }
+        /// <summary>
         /// Determines whether the specified Type is a model type.
         /// </summary>
         /// <param name="type">The Type to be checked.</param>
@@ -725,20 +747,6 @@ namespace TemplateTools.Logic.Generation
         {
             return type.GetBaseTypes().FirstOrDefault(t => t.Name.Equals(StaticLiterals.ModelObjectName)) != null;
         }
-        /// <summary>
-        /// Determines if a given string represents a model type.
-        /// </summary>
-        /// <param name="strType">The string type to be checked.</param>
-        /// <returns>True if the string type contains the specified ModelsFolder; otherwise, false.</returns>
-        public static bool IsModelType(string strType)
-        {
-            return strType.Contains($".{StaticLiterals.ModelsFolder}.");
-        }
-        /// <summary>
-        /// Determines if the specified type is a service model type.
-        /// </summary>
-        /// <param name="type">The type to check.</param>
-        /// <returns>true if the specified type is a service model type; otherwise, false.</returns>
         #endregion type infos
     }
 }

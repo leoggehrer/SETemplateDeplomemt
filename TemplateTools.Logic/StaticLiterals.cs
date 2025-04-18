@@ -125,10 +125,11 @@ namespace TemplateTools.Logic
 
         #region Entity properties
         public static readonly string IdentityProperty = "Id";
+        public static readonly string ExternalIdentityProperty = "Guid";
         public static readonly string RowVersionProperty = "RowVersion";
 
-        public static readonly string[] IdentityProperties = [IdentityProperty];
-        public static readonly string[] VersionProperties = [IdentityProperty, RowVersionProperty];
+        public static readonly string[] IdentityProperties = [IdentityProperty, ExternalIdentityProperty];
+        public static readonly string[] VersionProperties = [IdentityProperty, ExternalIdentityProperty, RowVersionProperty];
         public static string[] NoGenerationProperties => [.. IdentityProperties.Union(VersionProperties)];
         #endregion Entity properties
         

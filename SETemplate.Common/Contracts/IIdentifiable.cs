@@ -6,18 +6,9 @@ namespace SETemplate.Common.Contracts
     /// </summary>
     public partial interface IIdentifiable
     {
-        #region Properties
-#if EXTERNALGUID_OFF
-        /// <summary>
-        /// Gets the unique identifier for the entity.
-        /// </summary>
-        IdType Id { get; protected set; }
-#else
-        /// <summary>
-        /// Gets the unique identifier for the entity.
-        /// </summary>
-        Guid Guid { get; protected set; }
-#endif
-        #endregion Properties
+        #region partial methods
+        partial void BeforeCopyProperties(IIdentifiable other, ref bool handled);
+        partial void AfterCopyProperties(IIdentifiable other);
+        #endregion partial methods
     }
 }
