@@ -74,6 +74,12 @@ namespace TemplateTools.Logic.Generation
         /// <returns>The entity set name.</returns>
         public static string CreateEntitySetName(Type type) => $"{CreateEntityName(type)}Set";
         /// <summary>
+        /// Creates the view set name from the type.
+        /// </summary>
+        /// <param name="type">The entity type.</param>
+        /// <returns>The view set name.</returns>
+        public static string CreateViewSetName(Type type) => $"{CreateEntityName(type)}Set";
+        /// <summary>
         /// Creates the contract set name from the type.
         /// </summary>
         /// <param name="type">The entity type.</param>

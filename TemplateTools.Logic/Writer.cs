@@ -64,7 +64,20 @@ namespace TemplateTools.Logic
                 {
                     var writeItems = generatedItems.Where<IGeneratedItem>((Func<IGeneratedItem, bool>)(e => e.UnitType == UnitType.Common && e.ItemType == ItemType.EntityContract));
 
-                    WriteLogging("Write Logic-DataContext...");
+                    WriteLogging("Write Common-Contracts...");
+                    WriteItems(projectPath, writeItems, WriteToGroupFile);
+                }
+            })));
+            tasks.Add(Task.Factory.StartNew((Action)(() =>
+            {
+                var projectPath = Path.Combine(solutionPath, solutionProperties.CommonProjectName);
+                var projectName = solutionProperties.GetProjectNameFromPath(projectPath);
+
+                if (Directory.Exists(projectPath))
+                {
+                    var writeItems = generatedItems.Where<IGeneratedItem>((Func<IGeneratedItem, bool>)(e => e.UnitType == UnitType.Common && e.ItemType == ItemType.ViewContract));
+
+                    WriteLogging("Write Common-Contracts...");
                     WriteItems(projectPath, writeItems, WriteToGroupFile);
                 }
             })));
@@ -78,7 +91,18 @@ namespace TemplateTools.Logic
                 {
                     var writeItems = generatedItems.Where<IGeneratedItem>((Func<IGeneratedItem, bool>)(e => e.UnitType == UnitType.Logic && e.ItemType == ItemType.EntityContract));
 
-                    WriteLogging("Write Logic-Entity-Contracts...");
+                    WriteLogging("Write Logic-Connect-Entity-Contracts...");
+                    WriteItems(projectPath, writeItems, WriteToGroupFile);
+                }
+            })));
+            tasks.Add(Task.Factory.StartNew((Action)(() =>
+            {
+                var projectPath = Path.Combine(solutionPath, solutionProperties.LogicProjectName);
+                if (Directory.Exists(projectPath))
+                {
+                    var writeItems = generatedItems.Where<IGeneratedItem>((Func<IGeneratedItem, bool>)(e => e.UnitType == UnitType.Logic && e.ItemType == ItemType.ViewContract));
+
+                    WriteLogging("Write Logic-Connect-View-Contracts...");
                     WriteItems(projectPath, writeItems, WriteToGroupFile);
                 }
             })));
@@ -101,6 +125,28 @@ namespace TemplateTools.Logic
                     var writeItems = generatedItems.Where<IGeneratedItem>((Func<IGeneratedItem, bool>)(e => e.UnitType == UnitType.Logic && e.ItemType == ItemType.EntitySet));
 
                     WriteLogging("Write Logic-Entity-Sets...");
+                    WriteItems(projectPath, writeItems, WriteToGroupFile);
+                }
+            })));
+            tasks.Add(Task.Factory.StartNew((Action)(() =>
+            {
+                var projectPath = Path.Combine(solutionPath, solutionProperties.LogicProjectName);
+                if (Directory.Exists(projectPath))
+                {
+                    var writeItems = generatedItems.Where<IGeneratedItem>((Func<IGeneratedItem, bool>)(e => e.UnitType == UnitType.Logic && e.ItemType == ItemType.ViewSetContract));
+
+                    WriteLogging("Write Logic-View-Set-Contracts...");
+                    WriteItems(projectPath, writeItems, WriteToGroupFile);
+                }
+            })));
+            tasks.Add(Task.Factory.StartNew((Action)(() =>
+            {
+                var projectPath = Path.Combine(solutionPath, solutionProperties.LogicProjectName);
+                if (Directory.Exists(projectPath))
+                {
+                    var writeItems = generatedItems.Where<IGeneratedItem>((Func<IGeneratedItem, bool>)(e => e.UnitType == UnitType.Logic && e.ItemType == ItemType.ViewSet));
+
+                    WriteLogging("Write Logic-View-Sets...");
                     WriteItems(projectPath, writeItems, WriteToGroupFile);
                 }
             })));

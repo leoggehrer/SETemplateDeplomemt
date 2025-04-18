@@ -110,6 +110,7 @@ namespace TemplateTools.Logic
         public static readonly string EntitySetName = "EntitySet";
 
         public static readonly string ViewObjectName = "ViewObject";
+        public static readonly string ViewSetName = "ViewSet";
 
         public static readonly string ContextAccessor = "ContextAccessor";
         public static readonly string GenericItemViewModel = "GenericItemViewModel";
@@ -118,6 +119,7 @@ namespace TemplateTools.Logic
         public static readonly string IdentifiableName = "IIdentifiable";
         public static readonly string ContextContractName = "IContext";
         public static readonly string EntitySetContractName = "IEntitySet";
+        public static readonly string ViewSetContractName = "IViewSet";
 
         public static readonly string GlobalUsingIdentifiableName = "CommonContracts.IIdentifiable";
         public static readonly string GlobalUsingVersionableName = "CommonContracts.IVersionable";

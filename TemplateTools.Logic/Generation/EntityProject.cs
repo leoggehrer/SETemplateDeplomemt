@@ -111,6 +111,16 @@ namespace TemplateTools.Logic.Generation
         public IEnumerable<Type> InterfaceTypes => AssemblyTypes.Where(t => t.IsInterface);
 
         /// <summary>
+        /// Gets the collection of view types, within the assembly.
+        /// </summary>
+        public IEnumerable<Type> AllViewTypes => AssemblyTypes.Where(t => t.IsClass
+                                                                         && t.IsAbstract == false
+                                                                         && t.IsNested == false
+                                                                         && t.Namespace != null
+                                                                         && t.Namespace!.Contains($".{StaticLiterals.EntitiesFolder}")
+                                                                         && t.GetBaseTypes().FirstOrDefault(t => t.Name.Equals(StaticLiterals.ViewObjectName)) != null);
+
+        /// <summary>
         /// Gets the collection of entity types, within the assembly.
         /// </summary>
         public IEnumerable<Type> AllEntityTypes => AssemblyTypes.Where(t => t.IsClass
