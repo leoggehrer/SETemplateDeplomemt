@@ -28,7 +28,7 @@ namespace SETemplate.ConApp
             }
 
             _menuItems.Add(new MenuItem { Index = index, Action = (ctx) => action(ctx, PrintCompanyEmployees) });
-            Console.WriteLine($"{nameof(PrintCompanyEmployees),-25}....{index++}");
+            Console.WriteLine($"{nameof(PrintCompanyies),-25}....{index++}");
             _menuItems.Add(new MenuItem { Index = index, Action = (ctx) => action(ctx, PrintCompanyies) });
             Console.WriteLine($"{nameof(PrintCompanyies),-25}....{index++}");
             _menuItems.Add(new MenuItem { Index = index, Action = (ctx) => action(ctx, QueryCompanies) });

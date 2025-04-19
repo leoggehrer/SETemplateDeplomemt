@@ -141,6 +141,7 @@ namespace TemplateTools.Logic
         public static readonly string IdType = nameof(IdType);
         public static readonly string ModelObjectName = "ModelObject";
         public static readonly string VersionModelObjectName = "VersionModelObject";
+        public static readonly string ViewModelObjectName = "ViewModelObject";
         #endregion Model properties
 
         public static readonly string[] ModelBaseClasses =
@@ -152,6 +153,7 @@ namespace TemplateTools.Logic
         {
             { EntityObjectName, ModelObjectName },
             { VersionEntityObjectName, VersionModelObjectName },
+            { ViewObjectName, ViewModelObjectName },
         };
         
         #region Folders and Files

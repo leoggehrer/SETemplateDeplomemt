@@ -293,6 +293,12 @@ namespace TemplateTools.Logic.Generation
 
                 result = string.Join('.', namespaceItems);
             }
+            else if (IsViewType(type))
+            {
+                var namespaceItems = CreateModuleSubNamespaceItems(type, StaticLiterals.ModelsFolder);
+
+                result = string.Join('.', namespaceItems);
+            }
             return result;
         }
         /// <summary>
@@ -687,6 +693,17 @@ namespace TemplateTools.Logic.Generation
         public static bool IsEntityType(Type type)
         {
             return type.GetBaseTypes().FirstOrDefault(t => t.Name.Equals(StaticLiterals.EntityObjectName)) != null;
+        }
+        /// <summary>
+        /// Determines whether the given type is an view type.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns>
+        /// <c>true</c> if the given type is an entity type; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool IsViewType(Type type)
+        {
+            return type.GetBaseTypes().FirstOrDefault(t => t.Name.Equals(StaticLiterals.ViewObjectName)) != null;
         }
         /// <summary>
         /// Checks if the specified type is a List type containing entities.

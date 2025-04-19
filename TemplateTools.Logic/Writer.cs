@@ -31,7 +31,7 @@ namespace TemplateTools.Logic
         #endregion Class-Constructors
 
         #region fields
-        public static string[] InfoText =
+        private static readonly string[] InfoText =
         [
             $"//{StaticLiterals.GeneratedCodeLabel}",
             "/*****************************************************************************************",
@@ -60,7 +60,6 @@ namespace TemplateTools.Logic
         ];
         #endregion fields
 
-
         #region properties
         /// <summary>
         /// Gets or sets the logging console.
@@ -73,6 +72,13 @@ namespace TemplateTools.Logic
         /// True if the data should be written to the group file; otherwise, false.
         /// </value>
         public static bool WriteToGroupFile { get; set; } = true;
+        /// <summary>
+        /// Gets or sets a value indicating whether the information header should be written.
+        /// </summary>
+        /// <value>
+        /// True if the information header should be written; otherwise, false.
+        /// </value>
+        public static bool WriteInfoHeader { get; set; } = true;
         #endregion  properties
 
         /// <summary>
@@ -244,9 +250,20 @@ namespace TemplateTools.Logic
                 var projectPath = Path.Combine(solutionPath, solutionProperties.WebApiProjectName);
                 if (Directory.Exists(projectPath))
                 {
-                    var writeItems = generatedItems.Where(e => e.UnitType == UnitType.WebApi && e.ItemType == ItemType.Controller);
+                    var writeItems = generatedItems.Where(e => e.UnitType == UnitType.WebApi && e.ItemType == ItemType.EntityController);
 
-                    WriteLogging("Write WebApi-Controllers...");
+                    WriteLogging("Write WebApi-Entity-Controllers...");
+                    WriteItems(projectPath, writeItems, WriteToGroupFile);
+                }
+            }));
+            tasks.Add(Task.Factory.StartNew(() =>
+            {
+                var projectPath = Path.Combine(solutionPath, solutionProperties.WebApiProjectName);
+                if (Directory.Exists(projectPath))
+                {
+                    var writeItems = generatedItems.Where(e => e.UnitType == UnitType.WebApi && e.ItemType == ItemType.ViewController);
+
+                    WriteLogging("Write WebApi-View-Controllers...");
                     WriteItems(projectPath, writeItems, WriteToGroupFile);
                 }
             }));
@@ -457,12 +474,18 @@ namespace TemplateTools.Logic
                 }
                 else
                 {
-                    //                    sourceLines.Insert(0, $"//{StaticLiterals.GeneratedCodeLabel}");
-                    var index = 0;
-
-                    foreach (var info in InfoText)
+                    if (WriteInfoHeader)
                     {
-                        sourceLines.Insert(index++, info);
+                        var index = 0;
+
+                        foreach (var info in InfoText)
+                        {
+                            sourceLines.Insert(index++, info);
+                        }
+                    }
+                    else
+                    {
+                        sourceLines.Insert(0, $"//{StaticLiterals.GeneratedCodeLabel}");
                     }
                 }
                 WriteCodeFile(filePath, sourceLines);

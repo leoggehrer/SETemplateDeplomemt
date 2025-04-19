@@ -134,6 +134,7 @@ namespace SETemplate.Logic.DataContext
         {
             var handled = false;
 
+            OnViewModelCreating(modelBuilder);
             BeforeOnModelCreating(modelBuilder, ref handled);
             if (handled == false)
             {
@@ -144,7 +145,8 @@ namespace SETemplate.Logic.DataContext
             }
             AfterOnModelCreating(modelBuilder);
             base.OnModelCreating(modelBuilder);
-        }
+        }
+
         /// <summary>
         /// Determines the DbSet depending on the type E
         /// </summary>
@@ -206,6 +208,14 @@ namespace SETemplate.Logic.DataContext
         /// </summary>
         /// <param name="optionsBuilder">The options builder to be used for configuration.</param>
         static partial void AfterOnConfiguring(DbContextOptionsBuilder optionsBuilder);
+
+        /// <summary>
+        /// This method is called during the creation of the model for the database context.
+        /// It allows customization of the model by adding configurations, constraints, or relationships
+        /// between entities before the model is finalized.
+        /// </summary>
+        /// <param name="modelBuilder">The builder used to define the model for the context.</param>
+        static partial void OnViewModelCreating(ModelBuilder modelBuilder);
 
         /// <summary>
         /// This method is called before the model for a derived context has been initialized.

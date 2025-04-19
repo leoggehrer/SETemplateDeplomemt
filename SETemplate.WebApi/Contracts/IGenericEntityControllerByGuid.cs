@@ -10,7 +10,7 @@ namespace SETemplate.WebApi.Contracts
     /// </summary>
     /// <typeparam name="TModel">The type of the model entity.</typeparam>
     /// <typeparam name="TContract">The type of the contract associated with the model.</typeparam>
-    partial interface IGenericController<TModel, TContract>
+    partial interface IGenericEntityController<TModel, TContract>
     {
         /// <summary>
         /// Retrieves an entity by its GUID.

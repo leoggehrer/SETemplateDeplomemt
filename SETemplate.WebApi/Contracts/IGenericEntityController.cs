@@ -8,7 +8,7 @@ namespace SETemplate.WebApi.Contracts
     /// </summary>
     /// <typeparam name="TModel">The type of the model object.</typeparam>
     /// <typeparam name="TContract">The type of the contract object.</typeparam>
-    public partial interface IGenericController<TModel, TContract>
+    public partial interface IGenericEntityController<TModel, TContract>
         where TModel : CommonModels.ModelObject, TContract, new()
         where TContract : CommonContracts.IIdentifiable
     {
@@ -25,11 +25,11 @@ namespace SETemplate.WebApi.Contracts
         Task<ActionResult<IEnumerable<TModel>>> GetAsync();
 
         /// <summary>
-        /// Queries entities based on a specified predicate.
+        /// Queries entities based on the provided parameters.
         /// </summary>
-        /// <param name="predicate">The query predicate as a string.</param>
-        /// <returns>An <see cref="ActionResult"/> containing an enumerable of <typeparamref name="TModel"/> that match the predicate.</returns>
-        Task<ActionResult<IEnumerable<TModel>>> QueryAsync(string predicate);
+        /// <param name="queryParams">The query parameters containing predicates and values.</param>
+        /// <returns>An <see cref="ActionResult"/> containing an enumerable of <typeparamref name="TModel"/> that match the query.</returns>
+        Task<ActionResult<IEnumerable<TModel>>> QueryAsync([FromBody] Models.QueryParams queryParams);
 
         /// <summary>
         /// Creates a new entity.

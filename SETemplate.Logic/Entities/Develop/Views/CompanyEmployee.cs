@@ -2,6 +2,7 @@
 
 namespace SETemplate.Logic.Entities.Develop.Views
 {
+    [CommonModules.Attributes.View("CompanyEmployees")]
     public partial class CompanyEmployee : ViewObject
     {
         #region properties

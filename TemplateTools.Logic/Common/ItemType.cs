@@ -35,7 +35,8 @@ namespace TemplateTools.Logic.Common
         #endregion properties
         
         #region controllers
-        Controller,
+        EntityController,
+        ViewController,
         ContextAccessor,
         #endregion controllers
         

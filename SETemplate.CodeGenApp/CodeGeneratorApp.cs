@@ -17,7 +17,8 @@ namespace SETemplate.CodeGenApp
         static CodeGeneratorApp()
         {
             ClassConstructing();
-            ToGroupFile = false;
+            WriteToGroupFile = false;
+            WriteInfoHeader = true;
             IncludeCleanDirectory = true;
             ExcludeGeneratedFilesFromGIT = true;
             SourcePath = SolutionPath = TemplatePath.GetSolutionPathByExecution();
@@ -56,7 +57,11 @@ namespace SETemplate.CodeGenApp
         /// <summary>
         /// Gets or sets a value indicating whether the file should be grouped.
         /// </summary>
-        private static bool ToGroupFile { get; set; }
+        private static bool WriteToGroupFile { get; set; }
+        /// <summary>
+        /// Gets or sets a value indicating whether the file should be added info header.
+        /// </summary>
+        private static bool WriteInfoHeader { get; set; }
         /// <summary>
         /// Gets or sets a value indicating whether the empty folders in the source path will be deleted.
         /// </summary>
@@ -84,7 +89,8 @@ namespace SETemplate.CodeGenApp
             PrintLine($"Solution path:            {SourcePath}");
             PrintLine($"Code generation for:      {GetSolutionName(SourcePath)}");
             PrintLine('-', 80);
-            PrintLine($"Write generated code into:        {(ToGroupFile ? "Group files" : "Single files")}");
+            PrintLine($"Write generated code into:        {(WriteToGroupFile ? "Group files" : "Single files")}");
+            PrintLine($"Write info header text:           {(WriteInfoHeader ? "Info header on" : "Info header off")}");
             PrintLine($"Delete empty folders in the path: {(IncludeCleanDirectory ? "Yes" : "No")}");
             PrintLine($"Exclude generated files from git: {(ExcludeGeneratedFilesFromGIT ? "Yes" : "No")}");
             PrintLine();
@@ -110,7 +116,13 @@ namespace SETemplate.CodeGenApp
                 {
                     Key = (++mnuIdx).ToString(),
                     Text = ToLabelText("Group file", "Change group file flag"),
-                    Action = (self) => ToGroupFile = !ToGroupFile
+                    Action = (self) => WriteToGroupFile = !WriteToGroupFile
+                },
+                new()
+                {
+                    Key = (++mnuIdx).ToString(),
+                    Text = ToLabelText("Info header", "Change info header text"),
+                    Action = (self) => WriteInfoHeader = !WriteInfoHeader
                 },
                 new()
                 {
@@ -203,12 +215,12 @@ namespace SETemplate.CodeGenApp
             Console.WriteLine("Check entity types...");
             foreach (var item in Logic.Modules.CodeGenerator.AssemblyAccess.EntityTypes)
             {
-                if (Generator.IsEntity(item) == false)
+                if (Generator.IsEntity(item) == false && Generator.IsView(item) == false)
                 {
                     var saveColor = Console.ForegroundColor;
 
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($" + Invalid entity type: {item.Name}");
+                    Console.WriteLine($" + Invalid entity type: {item.Name} - this type is not an entity or a view type!");
                     Console.ForegroundColor = saveColor;
                     invalidEntities++;
                 }
@@ -233,7 +245,8 @@ namespace SETemplate.CodeGenApp
                 Generator.CleanDirectories(SourcePath);
             }
             Console.WriteLine("Write code items to files...");
-            Writer.WriteToGroupFile = ToGroupFile;
+            Writer.WriteToGroupFile = WriteToGroupFile;
+            Writer.WriteInfoHeader = WriteInfoHeader;
             Writer.WriteAll(SourcePath, solutionProperties, generatedItems);
             if (ExcludeGeneratedFilesFromGIT)
             {

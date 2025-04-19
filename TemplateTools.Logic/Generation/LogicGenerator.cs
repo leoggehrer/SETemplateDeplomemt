@@ -232,6 +232,40 @@ namespace TemplateTools.Logic.Generation
             }
             result.Add("}");
 
+            result.AddRange(CreateComment());
+            result.Add($"static partial void OnViewModelCreating(ModelBuilder modelBuilder)");
+            result.Add("{");
+
+            foreach (var type in entityProject.AllViewTypes)
+            {
+                var defaultValue = (GenerateDbContext && GetGenerateDefault(type)).ToString();
+
+                if (QuerySetting<bool>(Common.ItemType.DbContext, type, StaticLiterals.Generate, defaultValue))
+                {
+                    var viewAttribute = type.GetCustomAttribute<CommonModules.Attributes.ViewAttribute>();
+
+                    if (viewAttribute != null)
+                    {
+                        var viewName = viewAttribute.Name.HasContent() ? viewAttribute.Name : type.Name.CreatePluralWord();
+                        var viewShema = viewAttribute.Schema;
+                        var entitySubType = $"{StaticLiterals.EntitiesFolder}.{ItemProperties.CreateSubTypeFromEntity(type)}";
+                        var builderStatement = $"modelBuilder.Entity<{entitySubType}>()";
+
+                        result.Add($"modelBuilder.Entity<{entitySubType}>()");
+                        if (viewShema.HasContent())
+                        {
+                            result.Add($".ToView(\"{viewName}\", \"{viewShema}\")");
+                        }
+                        else
+                        {
+                            result.Add($".ToView(\"{viewName}\")");
+                        }
+                        result.Add($".HasNoKey();");
+                    }
+                }
+            }
+
+            result.Add("}");
             result.Add("#endregion partial methods");
 
             result.Add("}");

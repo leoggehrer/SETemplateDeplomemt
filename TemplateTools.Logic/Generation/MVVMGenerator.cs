@@ -1,6 +1,4 @@
 //@BaseCode
-
-using System.Reflection;
 using TemplateTools.Logic.Common;
 using TemplateTools.Logic.Contracts;
 using TemplateTools.Logic.Extensions;
@@ -132,7 +130,7 @@ namespace TemplateTools.Logic.Generation
 
             foreach (var type in entityProject.EntityTypes)
             {
-                if (CanCreate(type) && QuerySetting<bool>(ItemType.Controller, type, StaticLiterals.Generate, GenerateViewModels.ToString()))
+                if (CanCreate(type) && QuerySetting<bool>(ItemType.EntityController, type, StaticLiterals.Generate, GenerateViewModels.ToString()))
                 {
                     result.Add(CreateItemViewModelFromType(type, UnitType.MVVMApp, ItemType.MVVVMAppItemViewModel));
                     result.Add(CreateItemsViewModelFromType(type, UnitType.MVVMApp, ItemType.MVVVMAppItemsViewModel));
@@ -156,7 +154,7 @@ namespace TemplateTools.Logic.Generation
             var viewModelsNamespace = $"{ItemProperties.ProjectNamespace}.{viewModelsSubNamespace}";
             var subFilepath = Path.Combine(StaticLiterals.ViewModelsFolder, ItemProperties.CreateSubFilePath(type, $"{viewModelName}{StaticLiterals.CSharpFileExtension}"));
             var typeProperties = type.GetAllPropertyInfos();
-            var generationProperties = typeProperties.Where(e => StaticLiterals.NoGenerationProperties.Any(p => p.Equals(e.Name)) == false) ?? [];
+            var generateProperties = typeProperties.Where(e => StaticLiterals.NoGenerationProperties.Any(p => p.Equals(e.Name)) == false) ?? [];
             var result = new GeneratedItem(unitType, itemType)
             {
                 FullName = CreateModelFullName(type),
@@ -172,7 +170,7 @@ namespace TemplateTools.Logic.Generation
             result.AddRange(CreatePartialStaticConstrutor(viewModelName));
             result.AddRange(CreatePartialConstrutor("public", viewModelName));
 
-            foreach (var propertyInfo in generationProperties)
+            foreach (var propertyInfo in generateProperties)
             {
                 if (CanCreate(propertyInfo)
                     && propertyInfo.IsNavigationProperties() == false
@@ -196,6 +194,8 @@ namespace TemplateTools.Logic.Generation
             var viewModelsSubNamespace = ItemProperties.CreateSubNamespaceFromEntity(type, StaticLiterals.ViewModelsFolder);
             var viewModelsNamespace = $"{ItemProperties.ProjectNamespace}.{viewModelsSubNamespace}";
             var subFilepath = Path.Combine(StaticLiterals.ViewModelsFolder, ItemProperties.CreateSubFilePath(type, $"{viewModelName}{StaticLiterals.CSharpFileExtension}"));
+            var typeProperties = type.GetAllPropertyInfos();
+            var generateProperties = typeProperties.Where(e => StaticLiterals.NoGenerationProperties.Any(p => p.Equals(e.Name)) == false) ?? [];
             var result = new GeneratedItem(unitType, itemType)
             {
                 FullName = CreateModelFullName(type),

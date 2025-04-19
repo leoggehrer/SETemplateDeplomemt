@@ -59,7 +59,11 @@ namespace TemplateTools.ConApp.Apps
         /// <value>
         ///   <c>true</c> if the file should be grouped; otherwise, <c>false</c>.
         /// </value>
-        private bool ToGroupFile { get; set; } = false;
+        private bool WriteToGroupFile { get; set; } = false;
+        /// <summary>
+        /// Gets or sets the value indicating whether the file should be added info header.
+        /// </summary>
+        private bool WriteInfoHeader { get; set; } = true;
         /// <summary>
         /// Gets or sets a value indicating whether the empty folders in the source path will be deleted.
         /// </summary>
@@ -102,7 +106,13 @@ namespace TemplateTools.ConApp.Apps
                 {
                     Key = (++mnuIdx).ToString(),
                     Text = ToLabelText("Group file", "Change group file flag"),
-                    Action = (self) => ToGroupFile = !ToGroupFile
+                    Action = (self) => WriteToGroupFile = !WriteToGroupFile
+                },
+                new()
+                {
+                    Key = (++mnuIdx).ToString(),
+                    Text = ToLabelText("Info header", "Change info header flag"),
+                    Action = (self) => WriteInfoHeader = !WriteInfoHeader
                 },
                 new()
                 {
@@ -163,7 +173,8 @@ namespace TemplateTools.ConApp.Apps
         {
             List<KeyValuePair<string, object>> headerParams =
             [
-                new("Generate to group file:", ToGroupFile),
+                new("Generate to group file:", WriteToGroupFile),
+                new("Write info header text:", WriteInfoHeader),
                 new("Delete empty folders:", IncludeCleanDirectory),
                 new("Exclude g-files from git:", ExcludeGeneratedFilesFromGIT),
                 new("Solution path:", CodeSolutionPath),
@@ -241,30 +252,34 @@ namespace TemplateTools.ConApp.Apps
         /// <seealso cref="ExecuteRunProject(SolutionProperties, string)"/>
         private void StartCodeGeneration()
         {
-            var command = "6";  // Start code generation
+            var command = string.Empty;
             var solutionProperties = SolutionProperties.Create(CodeSolutionPath);
 
             PrintHeader();
             PrintLine("Start code generation...");
             ExecuteBuildProject(solutionProperties);
 
-            if (ToGroupFile)
+            if (WriteToGroupFile)
             {
                 command = "1 " + command;
             }
-
-            if (IncludeCleanDirectory == false)
+            if (!WriteInfoHeader)
             {
                 command = "2 " + command;
             }
 
-            if (ExcludeGeneratedFilesFromGIT == false)
+            if (IncludeCleanDirectory == false)
             {
                 command = "3 " + command;
             }
+
+            if (ExcludeGeneratedFilesFromGIT == false)
+            {
+                command = "4 " + command;
+            }
             PrintHeader();
             PrintLine("Start code generation...");
-            ExecuteRunProject(SolutionProperties.Create(CodeSolutionPath), command);
+            ExecuteRunProject(SolutionProperties.Create(CodeSolutionPath), command + "7"); // Start code generation 7
         }
         #endregion app methods
         /// <summary>
